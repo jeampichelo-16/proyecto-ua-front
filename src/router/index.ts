@@ -65,17 +65,6 @@ const routes = [
       },
     ],
   },
-  {
-    path: UserRoutes.REQUESTS,
-    component: BaseLayout,
-    meta: { requiresAuth: true, role: [Role.ADMIN, Role.EMPLEADO] },
-    children: [
-      {
-        path: "",
-        component: () => import("../views/user/RequestsView.vue"),
-      },
-    ],
-  },
 
   // 📂 Panel Admin (Dashboard principal)
   //Gestionar plataformas
@@ -112,6 +101,17 @@ const routes = [
       {
         path: "",
         component: () => import("../views/admin/ManageUsersView.vue"),
+      },
+    ],
+  },
+  {
+    path: AdminRoutes.MANAGE_OPERATORS,
+    component: BaseLayout,
+    meta: { requiresAuth: true, role: [Role.ADMIN] },
+    children: [
+      {
+        path: "",
+        component: () => import("../views/admin/ManageOperatorsView.vue"),
       },
     ],
   },

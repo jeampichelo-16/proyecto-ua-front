@@ -12,6 +12,7 @@ export const AdminRoutes = {
   DASHBOARD: "/admin/dashboard", // CRUD de clientes
   MANAGE_PLATFORMS: "/admin/gestionar-plataformas", // CRUD de plataformas (maquinarias)
   MANAGE_USERS: "/admin/gestionar-usuarios", // CRUD de usuarios
+  MANAGE_OPERATORS: "/admin/gestionar-operarios", // CRUD de operarios
 } as const;
 
 // 📂 Rutas de usuarios (comunes a ambos)
@@ -19,7 +20,6 @@ export const UserRoutes = {
   PROFILE: "/usuario/perfil",
   MANAGE_CLIENTS: "/usuario/gestionar-clientes",
   QUOTATIONS: "/usuario/cotizaciones", // Cotizaciones
-  REQUESTS: "/usuario/solicitudes", // Solicitudes
 } as const;
 
 // 📂 Rutas del panel de empleados

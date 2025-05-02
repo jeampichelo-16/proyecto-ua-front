@@ -6,3 +6,9 @@ body {
   font-family: 'Inter', sans-serif; /* si usas Tailwind o similar */
 }
 
+html,
+body {
+  height: 100%;
+  background-color: #f9f9f9;
+  margin: 0;
+}

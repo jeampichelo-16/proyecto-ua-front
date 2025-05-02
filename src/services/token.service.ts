@@ -4,7 +4,8 @@ import { useAuthStore } from "../stores/authStore";
 import { AuthRoutes } from "../router/routeNames";
 import { notifyWarning } from "../utils/notify";
 
-const TOKEN_REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 10 minutos
+//1 MINUTO 
+const TOKEN_REFRESH_INTERVAL_MS = 60 * 1000; // 1 segundo
 let refreshInterval: ReturnType<typeof setInterval> | null = null;
 
 export function startTokenAutoRefresh() {
