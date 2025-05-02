@@ -38,7 +38,55 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("../views/profile/UserProfileView.vue"),
+        component: () => import("../views/user/UserProfileView.vue"),
+      },
+    ],
+  },
+  {
+    path: UserRoutes.MANAGE_CLIENTS,
+    component: BaseLayout,
+    meta: { requiresAuth: true, role: [Role.ADMIN, Role.EMPLEADO] },
+    children: [
+      {
+        path: "",
+        component: () => import("../views/user/ManageClientsView.vue"),
+      },
+    ],
+  },
+  //cotizacioes
+  {
+    path: UserRoutes.QUOTATIONS,
+    component: BaseLayout,
+    meta: { requiresAuth: true, role: [Role.ADMIN, Role.EMPLEADO] },
+    children: [
+      {
+        path: "",
+        component: () => import("../views/user/QuotationsView.vue"),
+      },
+    ],
+  },
+  {
+    path: UserRoutes.REQUESTS,
+    component: BaseLayout,
+    meta: { requiresAuth: true, role: [Role.ADMIN, Role.EMPLEADO] },
+    children: [
+      {
+        path: "",
+        component: () => import("../views/user/RequestsView.vue"),
+      },
+    ],
+  },
+
+  // 📂 Panel Admin (Dashboard principal)
+  //Gestionar plataformas
+  {
+    path: AdminRoutes.MANAGE_PLATFORMS,
+    component: BaseLayout,
+    meta: { requiresAuth: true, role: [Role.ADMIN] },
+    children: [
+      {
+        path: "",
+        component: () => import("../views/user/ManagePlatformsView.vue"),
       },
     ],
   },
@@ -51,7 +99,19 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("../views/dashboard/AdminDashboardView.vue"),
+        component: () => import("../views/admin/AdminDashboardView.vue"),
+      },
+    ],
+  },
+  //GESTIONAR USUARIIS
+  {
+    path: AdminRoutes.MANAGE_USERS,
+    component: BaseLayout,
+    meta: { requiresAuth: true, role: [Role.ADMIN] },
+    children: [
+      {
+        path: "",
+        component: () => import("../views/admin/ManageUsersView.vue"),
       },
     ],
   },

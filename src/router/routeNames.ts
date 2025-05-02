@@ -9,25 +9,22 @@ export const AuthRoutes = {
 
 // 📂 Rutas del panel de administración
 export const AdminRoutes = {
-  DASHBOARD: "/admin/dashboard",
-  MANAGE_CLIENTS: "/admin/gestionar-clientes",        // CRUD de clientes
-  MANAGE_PRODUCTS: "/admin/gestionar-productos",      // CRUD de plataformas (maquinarias)
-  MANAGE_USERS: "/admin/gestionar-usuarios",           // CRUD de usuarios
-  QUOTATIONS: "/admin/cotizaciones",                  // Cotizaciones
-  REQUESTS: "/admin/solicitudes",                      // Solicitudes
+  DASHBOARD: "/admin/dashboard", // CRUD de clientes
+  MANAGE_PLATFORMS: "/admin/gestionar-plataformas", // CRUD de plataformas (maquinarias)
+  MANAGE_USERS: "/admin/gestionar-usuarios", // CRUD de usuarios
 } as const;
 
 // 📂 Rutas de usuarios (comunes a ambos)
 export const UserRoutes = {
   PROFILE: "/usuario/perfil",
+  MANAGE_CLIENTS: "/usuario/gestionar-clientes",
+  QUOTATIONS: "/usuario/cotizaciones", // Cotizaciones
+  REQUESTS: "/usuario/solicitudes", // Solicitudes
 } as const;
 
 // 📂 Rutas del panel de empleados
 export const EmployeeRoutes = {
-  REPORTS: "/empleado/reportes",                      // Generar reportes
-  MANAGE_CLIENTS: "/empleado/gestionar-clientes",      // CRUD de clientes
-  QUOTATIONS: "/empleado/cotizaciones",                // Hacer cotización
-  REQUESTS: "/empleado/solicitudes",                   // Registrar solicitud
+  REPORTS: "/empleado/reportes", // CRUD de clientes
 } as const;
 
 // 📂 Rutas de error

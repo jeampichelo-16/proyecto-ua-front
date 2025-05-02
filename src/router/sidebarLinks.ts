@@ -10,8 +10,8 @@ import {
   FileText,
   ClipboardList,
   User,
-  type LucideIcon,
-} from "lucide-vue-next";
+} from "lucide-vue-next"; // Asegúrate de tener lucide-vue-next instalado
+import type { LucideIcon } from "lucide-vue-next"; // Asegúrate de tener lucide-vue-next instalado
 
 export interface SidebarLink {
   label: string;
@@ -22,23 +22,27 @@ export interface SidebarLink {
 // 📂 Links para Administrador
 export const adminSidebarLinks: SidebarLink[] = [
   { label: "Dashboard", to: AdminRoutes.DASHBOARD, icon: Home },
-  { label: "Gestionar Clientes", to: AdminRoutes.MANAGE_CLIENTS, icon: Users },
-  { label: "Gestionar Productos", to: AdminRoutes.MANAGE_PRODUCTS, icon: Box },
+  { label: "Gestionar Clientes", to: UserRoutes.MANAGE_CLIENTS, icon: Users },
+  {
+    label: "Gestionar Plataformas",
+    to: AdminRoutes.MANAGE_PLATFORMS,
+    icon: Box,
+  },
   { label: "Gestionar Usuarios", to: AdminRoutes.MANAGE_USERS, icon: UserCog },
-  { label: "Cotizaciones", to: AdminRoutes.QUOTATIONS, icon: FileText },
-  { label: "Solicitudes", to: AdminRoutes.REQUESTS, icon: ClipboardList },
+  { label: "Cotizaciones", to: UserRoutes.QUOTATIONS, icon: FileText },
+  { label: "Solicitudes", to: UserRoutes.REQUESTS, icon: ClipboardList },
   { label: "Perfil", to: UserRoutes.PROFILE, icon: User },
 ];
 
 export const employeeSidebarLinks: SidebarLink[] = [
+  { label: "Reportes", to: EmployeeRoutes.REPORTS, icon: Box },
   {
     label: "Gestionar Clientes",
-    to: EmployeeRoutes.MANAGE_CLIENTS,
+    to: UserRoutes.MANAGE_CLIENTS,
     icon: Users,
   },
-  { label: "Cotizaciones", to: EmployeeRoutes.QUOTATIONS, icon: FileText },
-  { label: "Solicitudes", to: EmployeeRoutes.REQUESTS, icon: ClipboardList },
-  { label: "Reportes", to: EmployeeRoutes.REPORTS, icon: Box },
+  { label: "Cotizaciones", to: UserRoutes.QUOTATIONS, icon: FileText },
+  { label: "Solicitudes", to: UserRoutes.REQUESTS, icon: ClipboardList },
   { label: "Perfil", to: UserRoutes.PROFILE, icon: User },
 ];
 
