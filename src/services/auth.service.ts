@@ -35,6 +35,7 @@ export async function logoutUser(): Promise<LogoutResponse> {
 export async function refreshTokens(): Promise<RefreshTokenResponse> {
   try {
     const res = await api.post<RefreshTokenResponse>("/auth/refresh-token");
+  
     return res.data;
   } catch (err) {
     const message = ErrorService.handle(err);

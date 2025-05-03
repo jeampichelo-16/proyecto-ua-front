@@ -18,7 +18,11 @@ export const useAuthStore = defineStore("auth", () => {
   const loading = ref(false);
   const wasLoggedOut = ref(false);
   const isInitialized = ref(false);
-  const { clearSessionLogoutFlag } = useSessionFlags();
+  const {
+    clearSessionLogoutFlag,
+    markSessionAsActive,
+    clearSessionActiveFlag,
+  } = useSessionFlags();
 
   async function login(
     email: string,
@@ -34,6 +38,7 @@ export const useAuthStore = defineStore("auth", () => {
         role: user.role as Role,
       });
 
+      markSessionAsActive(); // 🧹 Marca la sesión como activa
       isAuthenticated.value = true;
       clearSessionLogoutFlag(); // 🧹 Limpia el logout flag
       wasLoggedOut.value = false;
@@ -60,6 +65,7 @@ export const useAuthStore = defineStore("auth", () => {
   function logout() {
     logoutUser();
     stopTokenAutoRefresh();
+    clearSessionActiveFlag(); // 🧹 Limpia el active flag
     clearSession();
     sessionStorage.setItem(logoutFlagKey, "true");
     wasLoggedOut.value = true;

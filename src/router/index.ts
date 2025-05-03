@@ -13,6 +13,7 @@ import {
 } from "./routeNames";
 import { useSessionFlags } from "../composables/useSessionFlags";
 import { getActivePinia } from "pinia";
+import { startTokenAutoRefresh } from "../services/token.service";
 
 const routes = [
   // 📂 Auth
@@ -184,6 +185,7 @@ router.beforeEach(async (to, _from, next) => {
       auth.isInitialized = true;
       markInitialized();
     } else {
+      startTokenAutoRefresh();
       await profile.fetchUser();
     }
   }

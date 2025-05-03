@@ -12,3 +12,18 @@ export interface Operator {
   phone: string;
   isActive: boolean;
 }
+
+export interface ActiveOperator {
+  id: number
+  userId: number
+  firstName: string
+  lastName: string
+  dni: string
+}
+
+export interface GetActiveOperatorsResponse {
+  message: string
+  statusCode: number
+  success: boolean
+  data: ActiveOperator[]
+}

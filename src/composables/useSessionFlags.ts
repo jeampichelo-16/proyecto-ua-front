@@ -10,6 +10,14 @@ export function useSessionFlags() {
     isInitializing.value = false;
   }
 
+  function markSessionAsActive() {
+    sessionStorage.setItem("session_active", "true");
+  }
+
+  function clearSessionActiveFlag() {
+    sessionStorage.removeItem("session_active");
+  }
+
   function isSessionInvalid(): boolean {
     return sessionStorage.getItem(SESSION_LOGOUT_KEY) === "true";
   }
@@ -28,5 +36,7 @@ export function useSessionFlags() {
     isSessionInvalid,
     markSessionAsLoggedOut,
     clearSessionLogoutFlag,
+    markSessionAsActive,
+    clearSessionActiveFlag,
   };
 }
