@@ -7,14 +7,8 @@ import type {
   GetActiveOperatorsResponse,
 } from "../types/operator";
 import type { Machine, MachineResponse } from "../types/platform";
-import type { Quotation } from "../types/quotation";
-import type { ApproveQuotationPayload } from "../types/quotationApproval";
-import type {
-  ActiveClient,
-  ActivePlatform,
-  CreateQuotationPayload,
-} from "../types/quotationCreate";
-import type { QuotationDetail } from "../types/quotationDetail";
+import type { ActiveClient, ActivePlatform, ApproveQuotationPayload, CreateQuotationPayload, Quotation, QuotationDetail } from "../types/quotation";
+
 import type { UserResponseDto } from "../types/user";
 import { ErrorService } from "./error.service";
 
@@ -104,23 +98,6 @@ export async function getQuotationById(id: number): Promise<QuotationDetail> {
   }
 }
 
-export async function getAvailableOperators(): Promise<
-  { id: number; fullName: string }[]
-> {
-  try {
-    const res = await api.get<GetActiveOperatorsResponse>(
-      "/admin/active-operators"
-    );
-    return res.data.data.map((op: ActiveOperator) => ({
-      id: op.id,
-      fullName: `${op.firstName} ${op.lastName} - ${op.dni}`,
-    }));
-  } catch (err) {
-    const message = ErrorService.handle(err);
-    throw new Error(message);
-  }
-}
-
 export async function approveQuotation(
   payload: ApproveQuotationPayload
 ): Promise<void> {
@@ -171,6 +148,23 @@ export async function cancelQuotation(quotationId: number): Promise<void> {
     await api.patch(`/users/quotations/${quotationId}/cancel`);
   } catch (error) {
     const message = ErrorService.handle(error);
+    throw new Error(message);
+  }
+}
+
+export async function getAvailableOperators(): Promise<
+  { id: number; fullName: string }[]
+> {
+  try {
+    const res = await api.get<GetActiveOperatorsResponse>(
+      "/admin/active-operators"
+    );
+    return res.data.data.map((op: ActiveOperator) => ({
+      id: op.id,
+      fullName: `${op.firstName} ${op.lastName} - ${op.dni}`,
+    }));
+  } catch (err) {
+    const message = ErrorService.handle(err);
     throw new Error(message);
   }
 }

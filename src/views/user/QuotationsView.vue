@@ -1,7 +1,6 @@
 <template>
     <div class="p-6 space-y-6">
         <BaseDataTable :columns="columns" :items="filteredQuotations">
-
             <!-- Header -->
             <template #header>
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
@@ -24,10 +23,8 @@
                     <td class="px-6 py-3">
                         <span :class="[
                             'inline-block px-2 py-0.5 text-xs font-semibold rounded-full',
-                            q.status === 'APROBADO'
-                                ? 'bg-green-100 text-green-700'
-                                : q.status === 'RECHAZADO'
-                                    ? 'bg-red-100 text-red-700'
+                            q.status === 'APROBADO' ? 'bg-green-100 text-green-700'
+                                : q.status === 'RECHAZADO' ? 'bg-red-100 text-red-700'
                                     : 'bg-yellow-100 text-yellow-700'
                         ]">
                             {{ q.status }}
@@ -40,18 +37,19 @@
                                 class="flex items-center gap-1 text-blue-600 hover:underline">
                                 <Eye class="w-4 h-4" /> Ver
                             </button>
+
                             <button v-if="q.status === 'PENDIENTE'" @click="openApproveModal(q.id)"
                                 class="flex items-center gap-1 text-green-600 hover:underline">
                                 <CheckCircle class="w-4 h-4" /> Aprobar
                             </button>
-                            <button v-if="q.status === 'PENDIENTE'" @click="submitCancellation(q.id)"
+
+                            <button v-if="q.status === 'PENDIENTE'" @click="confirmCancellation(q.id)"
                                 class="flex items-center gap-1 text-red-600 hover:underline">
                                 <XCircle class="w-4 h-4" />
                                 Cancelar
                             </button>
                         </div>
                     </td>
-
                 </tr>
             </template>
 
@@ -62,460 +60,243 @@
             </template>
         </BaseDataTable>
 
-        <!-- Modal de creación -->
-        <BaseModal v-model="isCreateModalOpen" :hideCloseButton="isCreating">
-            <div class="space-y-4">
-                <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                    <PlusCircle class="w-5 h-5 text-yellow-500" />
-                    Nueva Cotización
-                </h2>
+        <!-- Modal creación -->
+        <QuotationCreateModal v-model:isOpen="isCreateModalOpen" :clients="activeClients" :platforms="activePlatforms"
+            @created="fetchQuotations" @cancel="isCreateModalOpen = false" />
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                    <div>
-                        <label class="block mb-1 text-gray-700">Cliente</label>
-                        <select v-model="createForm.clientId" :disabled="isCreating"
-                            class="w-full border rounded px-3 py-2">
-                            <option disabled value="">Seleccione</option>
-                            <option v-for="c in activeClients" :key="c.id" :value="c.id">{{ c.companyName }}</option>
-                        </select>
-                    </div>
+        <!-- Modal detalles -->
+        <QuotationDetailModal :isOpen="isModalOpen" :quotation="selectedQuotation" @close="isModalOpen = false" />
 
-                    <div>
-                        <label class="block mb-1 text-gray-700">Plataforma</label>
-                        <select v-model="createForm.platformId" :disabled="isCreating"
-                            class="w-full border rounded px-3 py-2">
-                            <option disabled value="">Seleccione</option>
-                            <option v-for="p in activePlatforms" :key="p.id" :value="p.id">
-                                {{ p.serial }} ({{ p.brand }} - {{ p.model }})
-                            </option>
-                        </select>
-                    </div>
+        <!-- Modal aprobación -->
+        <QuotationApproveModal :isOpen="isApproveModalOpen" :quotation="selectedQuotation"
+            :availableOperators="availableOperators" :isApproving="isApproving" @cancel="isApproveModalOpen = false"
+            @submit="handleApproval" />
 
-                    <div class="sm:col-span-2">
-                        <label class="block mb-1 text-gray-700">Descripción</label>
-                        <textarea v-model="createForm.description" :disabled="isCreating"
-                            class="w-full border rounded px-3 py-2" rows="3"></textarea>
-                    </div>
-
-                    <div>
-                        <label class="block mb-1 text-gray-700">Días</label>
-                        <input v-model="createForm.days" type="number" min="1" :disabled="isCreating"
-                            class="w-full border rounded px-3 py-2" />
-                    </div>
-
-                    <div class="flex items-center space-x-2">
-                        <input v-model="createForm.isNeedOperator" type="checkbox" :disabled="isCreating"
-                            id="need-operator" class="text-yellow-500 focus:ring-yellow-400 border-gray-300 rounded" />
-                        <label for="need-operator" class="text-sm text-gray-700">¿Requiere operador?</label>
-                    </div>
-                </div>
-
-                <!-- Footer -->
-                <div class="text-right pt-4 border-t">
-                    <button v-if="!isCreating" @click="isCreateModalOpen = false"
-                        class="px-4 py-2 text-sm rounded bg-gray-100 hover:bg-gray-200 mr-2">
-                        Cancelar
-                    </button>
-                    <button @click="submitNewQuotation" :disabled="isCreating"
-                        class="px-4 py-2 text-sm rounded bg-yellow-400 text-white hover:bg-yellow-500 disabled:opacity-60">
-                        {{ isCreating ? 'Guardando...' : 'Guardar' }}
-                    </button>
-                </div>
-            </div>
-        </BaseModal>
-
-
-        <!-- Modal Detalles -->
-        <BaseModal v-model="isModalOpen">
-            <div class="space-y-6">
-                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                    <ClipboardList class="w-5 h-5 text-yellow-500" />
-                    Detalles de Cotización
-                </h2>
-
-                <!-- Cliente & Correo -->
-                <section class="grid sm:grid-cols-2 gap-3 text-sm text-gray-700">
-                    <div class="flex items-start gap-2">
-                        <User class="w-4 h-4 mt-1 text-gray-500" />
-                        <p><span class="font-medium">Cliente:</span> {{ selectedQuotation?.client.name }}</p>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <Mail class="w-4 h-4 mt-1 text-gray-500" />
-                        <p class="break-words max-w-full truncate sm:whitespace-normal">
-                            <strong>Correo:</strong> {{ selectedQuotation?.client.email }}
-                        </p>
-                    </div>
-                </section>
-
-                <!-- Plataforma & Días -->
-                <section class="grid sm:grid-cols-2 gap-3 text-sm text-gray-700">
-                    <div class="flex items-start gap-2">
-                        <Wrench class="w-4 h-4 mt-1 text-gray-500" />
-                        <p>
-                            <span class="font-medium">Plataforma:</span>
-                            {{ selectedQuotation?.platform.serial }}
-                            ({{ selectedQuotation?.platform.brand }} - {{ selectedQuotation?.platform.model }})
-                        </p>
-                    </div>
-                    <div class="flex items-start gap-2">
-                        <Calendar class="w-4 h-4 mt-1 text-gray-500" />
-                        <p><span class="font-medium">Días:</span> {{ selectedQuotation?.days }}</p>
-                    </div>
-                </section>
-
-                <!-- Montos -->
-                <section class="grid sm:grid-cols-2 gap-3 text-sm text-gray-700">
-                    <div class="flex gap-2 items-start">
-                        <DollarSign class="w-4 h-4 mt-1 text-gray-500" />
-                        <div class="space-y-1 text-sm text-gray-700 leading-tight">
-                            <div>
-                                <span class="font-medium">Monto:</span>
-                                {{ selectedQuotation?.typeCurrency }} {{ selectedQuotation?.amount != null ?
-                                    selectedQuotation.amount.toFixed(2) : '0.00' }}
-                            </div>
-                            <div>
-                                <span class="font-medium">Envío:</span>
-                                {{ selectedQuotation?.typeCurrency }} {{ selectedQuotation?.deliveryAmount != null ?
-                                    selectedQuotation.deliveryAmount.toFixed(2) : '0.00' }}
-                            </div>
-                            <div>
-                                <span class="font-medium">Subtotal:</span>
-                                {{ selectedQuotation?.typeCurrency }} {{ selectedQuotation?.subtotal != null ?
-                                    selectedQuotation.subtotal.toFixed(2) : '0.00' }}
-                            </div>
-                            <div>
-                                <span class="font-medium">IGV:</span>
-                                {{ selectedQuotation?.typeCurrency }} {{ selectedQuotation?.igv != null ?
-                                    selectedQuotation.igv.toFixed(2) : '0.00' }}
-                            </div>
-                            <div class="font-medium">
-                                Total: {{ selectedQuotation?.typeCurrency }} {{ selectedQuotation?.total != null ?
-                                    selectedQuotation.total.toFixed(2) : '0.00' }}
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-
-                <!-- Estado & Fecha -->
-                <section class="grid sm:grid-cols-2 gap-3 text-sm text-gray-700">
-                    <div class="flex items-center gap-2">
-                        <ClipboardList class="w-4 h-4 text-gray-500" />
-                        <p><span class="font-medium">Estado:</span> {{ selectedQuotation?.status }}</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <Calendar class="w-4 h-4 text-gray-500" />
-                        <p><span class="font-medium">Fecha:</span> {{ formatDate(selectedQuotation?.createdAt ?? '') }}
-                        </p>
-                    </div>
-                </section>
-
-                <!-- PDF -->
-                <section v-if="selectedQuotation?.quotationPath" class="flex items-center gap-2 text-sm text-gray-700">
-                    <FileText class="w-4 h-4 text-gray-600" />
-                    <span class="font-medium">PDF:</span>
-                    <a :href="selectedQuotation?.quotationPath" target="_blank" class="text-blue-600 hover:underline">
-                        Ver documento
-                    </a>
-                </section>
-
-                <!-- Footer -->
-                <div class="text-right pt-4 border-t">
-                    <button @click="isModalOpen = false"
-                        class="px-4 py-2 text-sm rounded-md bg-gray-100 hover:bg-gray-200">
-                        Cerrar
-                    </button>
-                </div>
-            </div>
-        </BaseModal>
-
-
-        <BaseModal v-model="isApproveModalOpen" :hideCloseButton="isApproving">
-
-            <div class="space-y-4">
-                <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                    <CheckCircle class="w-5 h-5 text-green-600" />
-                    Aprobar Cotización
-                </h2>
-
-                <p class="text-sm text-gray-600">Completa los datos para aprobar esta cotización.</p>
-
-                <div>
-                    <label class="block text-sm text-gray-700 font-medium mb-1">Costo de Envío (S/)</label>
-                    <input type="number" v-model="deliveryCost" :disabled="isApproving"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-yellow-400 focus:ring-2" />
-                </div>
-
-                <div v-if="selectedQuotation?.isNeedOperator">
-                    <label class="block text-sm text-gray-700 font-medium mb-1">Seleccionar Operador</label>
-                    <select v-if="selectedQuotation?.isNeedOperator" v-model="selectedOperatorId"
-                        :disabled="isApproving"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-yellow-400 focus:ring-2">
-                        <option value="" disabled selected>Selecciona un operador</option>
-                        <option v-for="op in availableOperators" :key="op.id" :value="op.id">
-                            {{ op.fullName }}
-                        </option>
-                    </select>
-
-                </div>
-
-                <div class="pt-4 border-t flex justify-end gap-2">
-                    <button v-if="!isApproving" @click="isApproveModalOpen = false"
-                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm">
-                        Cancelar
-                    </button>
-                    <button @click="submitApproval" :disabled="isApproving"
-                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded text-sm disabled:opacity-50">
-                        {{ isApproving ? 'Aprobando...' : 'Aprobar' }}
-                    </button>
-                </div>
-
-            </div>
-        </BaseModal>
-
+        <!-- Modal cancelación -->
+        <QuotationCancelModal :isOpen="isCancelConfirmOpen" :isCancelling="isCancelling"
+            @cancel="isCancelConfirmOpen = false" @submit="submitCancellation" />
     </div>
 </template>
 
+
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import type { Quotation } from '../../types/quotation'
-import type { QuotationDetail } from '../../types/quotationDetail'
-import { getPaginatedQuotations, getQuotationById, approveQuotation, getAvailableOperators, getActivePlatforms, getActiveClients, createQuotation } from '../../services/user.service'
+import type { Quotation, QuotationDetail } from '../../types/quotation'
+import {
+    getPaginatedQuotations,
+    getQuotationById,
+    approveQuotation,
+    getAvailableOperators,
+    getActivePlatforms,
+    getActiveClients,
+    cancelQuotation
+} from '../../services/user.service'
+
 import BaseDataTable from '../../components/BaseDataTable.vue'
 import BasePagination from '../../components/BasePagination.vue'
-import BaseModal from '../../components/BaseModal.vue'
-import { FileText, Calendar, DollarSign, XCircle, User, Mail, ClipboardList, Wrench, CheckCircle, Eye, PlusCircle } from 'lucide-vue-next'
+import { XCircle, CheckCircle, Eye, PlusCircle } from 'lucide-vue-next'
 import { notifyError, notifySuccess } from '../../utils/notify'
-import { cancelQuotation } from '../../services/user.service'
+import QuotationCreateModal from '../../components/quotation/QuotationCreateModal.vue'
+import QuotationDetailModal from '../../components/quotation/QuotationDetailModal.vue'
+import QuotationCancelModal from '../../components/quotation/QuotationCancelModal.vue'
+import QuotationApproveModal from '../../components/quotation/QuotationApproveModal.vue'
+import { formatDate } from '../../utils/date'
 
+// 👉 Cotizaciones
 const quotations = ref<Quotation[]>([])
+const selectedQuotation = ref<QuotationDetail | null>(null)
+
+// 👉 Paginación y filtros
 const currentPage = ref(1)
 const total = ref(0)
 const pageSize = ref(10)
 const searchQuery = ref('')
 const selectedStatus = ref('')
-const selectedQuotation = ref<QuotationDetail | null>(null)
 
+// 👉 Estado de modales
+const isCreateModalOpen = ref(false)
 const isModalOpen = ref(false)
 const isApproveModalOpen = ref(false)
-const isCreateModalOpen = ref(false)
+const isCancelConfirmOpen = ref(false)
 
+// 👉 Estado de acción activa
+type LoadingState = 'none' | 'approving' | 'cancelling'
+const loadingState = ref<LoadingState>('none')
+const isApproving = computed(() => loadingState.value === 'approving')
+const isCancelling = computed(() => loadingState.value === 'cancelling')
+
+// 👉 Aprobación
 const approveQuotationId = ref<number | null>(null)
-const deliveryCost = ref<number | null>(null)
-const selectedOperatorId = ref<number | null>(null)
 const availableOperators = ref<{ id: number; fullName: string }[]>([])
-const isApproving = ref(false)
-const isCreating = ref(false)
 
-// 🆕 Nueva cotización
-const createForm = ref({
-    clientId: null as number | null,
-    platformId: null as number | null,
-    description: '',
-    days: 1,
-    isNeedOperator: false,
-})
+// 👉 Cancelación
+const cancelQuotationId = ref<number | null>(null)
+
+// 👉 Data complementaria
 const activeClients = ref<{ id: number; companyName: string }[]>([])
 const activePlatforms = ref<{ id: number; serial: string; brand: string; model: string }[]>([])
 
-
+// 👉 Columnas
 const columns = [
     { label: 'Cliente', key: 'clientName' },
     { label: 'Plataforma', key: 'platformSerial' },
     { label: 'Días', key: 'days' },
     { label: 'Total', key: 'total' },
     { label: 'Estado', key: 'status' },
-    { label: 'Fecha', key: 'createdAt' },
+    { label: 'Fecha de creación', key: 'createdAt' },
     { label: 'Acciones', key: 'actions' }
 ]
 
+// 👉 Computeds
 const totalPages = computed(() => Math.ceil(total.value / pageSize.value))
 
 const filteredQuotations = computed(() => {
     const q = searchQuery.value.toLowerCase()
     return quotations.value.filter(
-        (item) =>
+        item =>
             item.clientName.toLowerCase().includes(q) ||
-            item.platformSerial.toLowerCase().includes(q)
+            item.platformSerial.toLowerCase().includes(q) ||
+            item.status.toLowerCase().includes(q)
     )
 })
 
+// 👉 Utilidades
+async function safeCall<T>(fn: () => Promise<T>, onError: string): Promise<T | null> {
+    try {
+        return await fn()
+    } catch (err) {
+        console.error(onError, err)
+        return null
+    }
+}
+
+// 👉 Data inicial
 async function fetchActiveData() {
-    try {
-        const clients = await getActiveClients()
-        const platforms = await getActivePlatforms()
-        activeClients.value = clients
-        activePlatforms.value = platforms
-    } catch (err) {
-        console.error('Error al cargar datos activos:', err)
-    }
-}
-
-async function submitNewQuotation() {
-    const form = createForm.value;
-
-    if (!form.clientId || !form.platformId || !form.description.trim() || form.days <= 0) {
-        notifyError({
-            title: 'Campos incompletos',
-            description: 'Completa todos los campos obligatorios correctamente.',
-        });
-        return;
-    }
-
-    isCreating.value = true
-
-    try {
-        await createQuotation({
-            clientId: form.clientId,
-            platformId: form.platformId,
-            description: form.description.trim(),
-            days: form.days,
-            isNeedOperator: form.isNeedOperator,
-        });
-
-        notifySuccess({
-            title: 'Cotización creada',
-            description: 'La cotización se ha creado exitosamente.',
-        });
-
-        isCreateModalOpen.value = false;
-        await fetchQuotations();
-
-        // Opcional: limpiar el formulario
-        createForm.value = {
-            clientId: null,
-            platformId: null,
-            description: '',
-            days: 1,
-            isNeedOperator: false,
-        };
-    } catch (err) {
-        notifyError({
-            title: 'Error al crear cotización',
-            description: 'No se pudo crear la cotización. Por favor, inténtalo de nuevo más tarde.',
-        });
-    } finally {
-        isCreating.value = false
-    }
-}
-
-
-function formatDate(date: string) {
-    return new Date(date).toLocaleString('es-PE', {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-    })
+    activeClients.value = (await safeCall(getActiveClients, 'Error al cargar clientes')) || []
+    activePlatforms.value = (await safeCall(getActivePlatforms, 'Error al cargar plataformas')) || []
 }
 
 async function fetchQuotations() {
-    try {
-        const res = await getPaginatedQuotations(currentPage.value)
-        quotations.value = res.quotations
-        total.value = res.total
-        pageSize.value = res.pageSize
-    } catch (err) {
-        console.error('Error al obtener cotizaciones:', err)
-    }
+    const res = await safeCall(() => getPaginatedQuotations(currentPage.value), 'Error al obtener cotizaciones')
+    if (!res) return
+    quotations.value = res.quotations
+    total.value = res.total
+    pageSize.value = res.pageSize
 }
 
+// 👉 Visualizar detalles
 async function viewQuotation(id: number) {
-    try {
-        const data = await getQuotationById(id)
-        selectedQuotation.value = data
-        isModalOpen.value = true
-    } catch (err) {
-        console.error('Error al obtener detalle de cotización:', err)
-    }
+    const data = await safeCall(() => getQuotationById(id), 'Error al obtener detalle de cotización')
+    if (!data) return
+    selectedQuotation.value = data
+    isModalOpen.value = true
 }
 
+// 👉 Aprobación
 async function loadOperators() {
-    try {
-        availableOperators.value = await getAvailableOperators()
-    } catch (err) {
-        console.error('Error al obtener operadores:', err)
-    }
+    const res = await safeCall(getAvailableOperators, 'Error al obtener operadores')
+    if (res) availableOperators.value = res
 }
 
 async function openApproveModal(id: number) {
-    try {
-        const data = await getQuotationById(id)
-        selectedQuotation.value = data
-        approveQuotationId.value = id
-        deliveryCost.value = null
-        selectedOperatorId.value = null
-        isApproveModalOpen.value = true
+    const data = await safeCall(() => getQuotationById(id), 'Error al preparar aprobación')
+    if (!data) return
 
-        if (data.isNeedOperator) {
-            await loadOperators()
-        }
-    } catch (err) {
-        console.error('Error al preparar aprobación:', err)
-    }
+    selectedQuotation.value = data
+    approveQuotationId.value = id
+    isApproveModalOpen.value = true
+
+    if (data.isNeedOperator) await loadOperators()
 }
 
-async function submitApproval() {
-    if (!deliveryCost.value || deliveryCost.value <= 0) {
-        notifyError({
-            title: 'Costo inválido',
-            description: 'Por favor, ingresa un costo de envío válido.',
-        });
-        return;
-    }
-
-    if (selectedQuotation.value?.isNeedOperator && !selectedOperatorId.value) {
-        notifyError({
-            title: 'Operador requerido',
-            description: 'Por favor, selecciona un operador.',
-        });
-        return;
-    }
-
-    isApproving.value = true;
-
+async function submitApproval(payload: { deliveryAmount: number; operatorId: number | null }) {
+    loadingState.value = 'approving'
     try {
         await approveQuotation({
             quotationId: approveQuotationId.value!,
-            deliveryAmount: deliveryCost.value!,
-            operatorId: selectedQuotation.value?.isNeedOperator ? selectedOperatorId.value : null
-        });
+            deliveryAmount: payload.deliveryAmount,
+            operatorId: payload.operatorId
+        })
 
         notifySuccess({
             title: 'Cotización aprobada',
-            description: 'La cotización fue aprobada correctamente.',
-        });
+            description: 'La cotización fue aprobada correctamente.'
+        })
 
-        isApproveModalOpen.value = false;
-        await fetchQuotations();
+        isApproveModalOpen.value = false
+        await fetchQuotations()
     } catch (err) {
         notifyError({
             title: 'Error al aprobar',
-            description: 'Ocurrió un error al aprobar la cotización.',
-        });
+            description: 'Ocurrió un error al aprobar la cotización.'
+        })
     } finally {
-        isApproving.value = false;
+        loadingState.value = 'none'
     }
 }
 
-async function submitCancellation(id: number) {
+// 👉 Cancelación
+async function submitCancellation() {
+    if (!cancelQuotationId.value) return
+    loadingState.value = 'cancelling'
+
     try {
-        await cancelQuotation(id)
+        await cancelQuotation(cancelQuotationId.value)
+
         notifySuccess({
             title: 'Cotización cancelada',
-            description: 'La cotización ha sido cancelada correctamente.',
+            description: 'La cotización ha sido cancelada correctamente.'
         })
+
+        isCancelConfirmOpen.value = false
+        cancelQuotationId.value = null
         await fetchQuotations()
     } catch (err) {
         notifyError({
             title: 'Error al cancelar',
-            description: 'No se pudo cancelar la cotización. Intenta nuevamente.',
+            description: 'No se pudo cancelar la cotización.'
         })
+    } finally {
+        loadingState.value = 'none'
     }
 }
 
+// 👉 Handlers
+function handleApproval(payload: { deliveryAmount: number; operatorId: number | null }) {
+    submitApproval(payload)
+}
 
+function confirmCancellation(id: number) {
+    cancelQuotationId.value = id
+    isCancelConfirmOpen.value = true
+}
+
+// 👉 Reacciones
 watch([currentPage, selectedStatus], fetchQuotations)
+
+watch([isApproveModalOpen, isModalOpen], ([isApproveOpen, isDetailOpen]) => {
+    const noModalsOpen = !isApproveOpen && !isDetailOpen
+
+    if (noModalsOpen) {
+        selectedQuotation.value = null
+        availableOperators.value = []
+    }
+})
+
+watch(isCreateModalOpen, async (isOpen) => {
+    if (isOpen) {
+        await fetchActiveData()
+    } else {
+        // Opcional: limpia si quieres
+        activeClients.value = []
+        activePlatforms.value = []
+    }
+})
+
+
+// 👉 Inicial
 onMounted(() => {
     fetchQuotations()
-    fetchActiveData()
+    //fetchActiveData()
 })
 </script>

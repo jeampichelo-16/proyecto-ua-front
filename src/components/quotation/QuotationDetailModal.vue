@@ -1,0 +1,116 @@
+<template>
+    <BaseModal :modelValue="isOpen" @update:modelValue="$emit('close')">
+        <div class="space-y-6">
+            <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <ClipboardList class="w-5 h-5 text-yellow-500" />
+                Detalles de Cotización
+            </h2>
+
+            <!-- Cliente -->
+            <section class="grid sm:grid-cols-2 gap-4 text-sm text-gray-700">
+                <div class="flex items-start gap-2">
+                    <User class="w-4 h-4 mt-1 text-gray-500" />
+                    <p><span class="font-medium">Cliente:</span> {{ quotation?.client.name }}</p>
+                </div>
+                <div class="flex items-start gap-2">
+                    <Mail class="w-4 h-4 mt-1 text-gray-500" />
+                    <p class="break-words max-w-full truncate sm:whitespace-normal">
+                        <span class="font-medium">Correo:</span> {{ quotation?.client.email }}
+                    </p>
+                </div>
+            </section>
+
+            <hr class="border-gray-200" />
+
+            <!-- Plataforma -->
+            <section class="grid sm:grid-cols-2 gap-4 text-sm text-gray-700">
+                <div class="flex items-start gap-2">
+                    <Wrench class="w-4 h-4 mt-1 text-gray-500" />
+                    <p>
+                        <span class="font-medium">Plataforma:</span>
+                        {{ quotation?.platform.serial }} ({{ quotation?.platform.brand }} - {{ quotation?.platform.model
+                        }})
+                    </p>
+                </div>
+                <div class="flex items-start gap-2">
+                    <Calendar class="w-4 h-4 mt-1 text-gray-500" />
+                    <p><span class="font-medium">Días:</span> {{ quotation?.days }}</p>
+                </div>
+            </section>
+
+            <hr class="border-gray-200" />
+
+            <!-- Montos -->
+            <section class="grid sm:grid-cols-2 gap-4 text-sm text-gray-700">
+                <div class="flex gap-2 items-start">
+                    <DollarSign class="w-4 h-4 mt-1 text-gray-500" />
+                    <div class="space-y-1 leading-tight">
+                        <div><span class="font-medium">Monto:</span> {{ currency(quotation?.amount) }}</div>
+                        <div><span class="font-medium">Envío:</span> {{ currency(quotation?.deliveryAmount) }}</div>
+                        <div><span class="font-medium">Subtotal:</span> {{ currency(quotation?.subtotal) }}</div>
+                        <div><span class="font-medium">IGV:</span> {{ currency(quotation?.igv) }}</div>
+                        <div class="font-medium">Total: {{ currency(quotation?.total) }}</div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="border-gray-200" />
+
+            <!-- Estado y Fechas -->
+            <section class="grid gap-2 text-sm text-gray-700">
+                <div class="flex items-center gap-2">
+                    <ClipboardList class="w-4 h-4 text-gray-500" />
+                    <p><span class="font-medium">Estado:</span> {{ quotation?.status }}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <Calendar class="w-4 h-4 text-gray-500" />
+                    <p><span class="font-medium">Fecha de creación:</span> {{ formatDate(quotation?.createdAt ?? '') }}
+                    </p>
+                </div>
+                <div v-if="quotation?.status === 'APROBADO'" class="flex items-center gap-2">
+                    <Calendar class="w-4 h-4 text-gray-500" />
+                    <p><span class="font-medium">Fecha de aprobación:</span> {{ formatDate(quotation.updatedAt) }}</p>
+                </div>
+                <div v-if="quotation?.status === 'RECHAZADO'" class="flex items-center gap-2">
+                    <Calendar class="w-4 h-4 text-gray-500" />
+                    <p><span class="font-medium">Fecha de rechazo:</span> {{ formatDate(quotation.updatedAt) }}</p>
+                </div>
+            </section>
+
+            <!-- PDF -->
+            <section v-if="quotation?.quotationPath" class="flex items-center gap-2 text-sm text-gray-700">
+                <FileText class="w-4 h-4 text-gray-600" />
+                <span class="font-medium">PDF:</span>
+                <a :href="quotation.quotationPath" target="_blank" class="text-blue-600 hover:underline">
+                    Ver documento
+                </a>
+            </section>
+
+            <!-- Footer -->
+            <div class="text-right pt-4 border-t">
+                <button @click="$emit('close')" class="px-4 py-2 text-sm rounded-md bg-gray-100 hover:bg-gray-200">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </BaseModal>
+
+</template>
+
+<script setup lang="ts">
+import { FileText, Calendar, DollarSign, User, Mail, ClipboardList, Wrench } from 'lucide-vue-next'
+import BaseModal from '../BaseModal.vue'
+import { formatDate } from '../../utils/date';
+import type { QuotationDetail } from '../../types/quotation';
+
+
+defineProps<{
+    isOpen: boolean
+    quotation: QuotationDetail | null
+}>()
+
+defineEmits(['close'])
+
+const currency = (val?: number | null) => `S/ ${val?.toFixed(2) ?? '0.00'}`
+
+</script>

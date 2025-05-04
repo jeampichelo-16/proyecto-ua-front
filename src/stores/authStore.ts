@@ -11,8 +11,6 @@ import type { Role } from "../types/user";
 import { useProfileStore } from "./profileStore";
 import { useSessionFlags } from "../composables/useSessionFlags";
 
-const logoutFlagKey = "session_logged_out";
-
 export const useAuthStore = defineStore("auth", () => {
   const isAuthenticated = ref(false);
   const loading = ref(false);
@@ -22,6 +20,7 @@ export const useAuthStore = defineStore("auth", () => {
     clearSessionLogoutFlag,
     markSessionAsActive,
     clearSessionActiveFlag,
+    markSessionAsLoggedOut,
   } = useSessionFlags();
 
   async function login(
@@ -67,7 +66,7 @@ export const useAuthStore = defineStore("auth", () => {
     stopTokenAutoRefresh();
     clearSessionActiveFlag(); // 🧹 Limpia el active flag
     clearSession();
-    sessionStorage.setItem(logoutFlagKey, "true");
+    markSessionAsLoggedOut(); // 🧹 Marca la sesión como cerrada
     wasLoggedOut.value = true;
     notifyInfo({
       title: ToastMessages.logout.title,

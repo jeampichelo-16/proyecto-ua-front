@@ -4,6 +4,7 @@ import { ref } from "vue";
 const isInitializing = ref(true);
 
 const SESSION_LOGOUT_KEY = "session_logged_out";
+const SESSION_ACTIVE = "session_active";
 
 export function useSessionFlags() {
   function markInitialized() {
@@ -11,11 +12,11 @@ export function useSessionFlags() {
   }
 
   function markSessionAsActive() {
-    sessionStorage.setItem("session_active", "true");
+    sessionStorage.setItem(SESSION_ACTIVE, "true");
   }
 
   function clearSessionActiveFlag() {
-    sessionStorage.removeItem("session_active");
+    sessionStorage.removeItem(SESSION_ACTIVE);
   }
 
   function isSessionInvalid(): boolean {

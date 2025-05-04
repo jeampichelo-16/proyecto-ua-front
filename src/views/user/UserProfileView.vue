@@ -72,15 +72,9 @@
 
 <script setup lang="ts">
 import { useProfileStore } from '../../stores/profileStore'
+import { formatDate } from '../../utils/date';
 
 const profile = useProfileStore()
 
-function formatDate(dateString: string | null | undefined): string {
-    if (!dateString) return '—'
-    const date = new Date(dateString)
-    return date.toLocaleString('es-PE', {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-    })
-}
+
 </script>
