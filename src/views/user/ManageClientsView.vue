@@ -5,8 +5,12 @@
             <template #header>
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                     <h1 class="text-2xl font-bold text-gray-800">Gestión de Clientes</h1>
+
                 </div>
 
+                <div class="space-y-1 text-sm text-gray-600 leading-relaxed">
+                    <p>Administra los clientes registrados en la plataforma.</p>
+                </div>
             </template>
 
             <!-- 🔎 Filtros -->

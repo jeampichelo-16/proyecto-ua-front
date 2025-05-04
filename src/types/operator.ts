@@ -1,11 +1,18 @@
+export enum OperatorStatus {
+  ACTIVO = "ACTIVO",
+  EN_TRABAJO = "EN_TRABAJO",
+  INACTIVO = "INACTIVO",
+  NO_DISPONIBLE = "NO_DISPONIBLE",
+}
+
 export interface Operator {
-  id: number;
   idOperator: number;
   email: string;
   username: string;
   firstName: string;
   lastName: string;
   dni: string;
+  operatorStatus: OperatorStatus;
   role: "OPERARIO" | string;
   emoPDFPath: string;
   operativityCertificatePath: string;
@@ -14,16 +21,16 @@ export interface Operator {
 }
 
 export interface ActiveOperator {
-  id: number
-  userId: number
-  firstName: string
-  lastName: string
-  dni: string
+  id: number;
+  userId: number;
+  firstName: string;
+  lastName: string;
+  dni: string;
 }
 
 export interface GetActiveOperatorsResponse {
-  message: string
-  statusCode: number
-  success: boolean
-  data: ActiveOperator[]
+  message: string;
+  statusCode: number;
+  success: boolean;
+  data: ActiveOperator[];
 }

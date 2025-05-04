@@ -11,6 +11,9 @@
                         Generar Cotización
                     </button>
                 </div>
+                <div class="space-y-1 text-sm text-gray-600 leading-relaxed">
+                    <p>Administra las cotizaciones generadas por los clientes.</p>
+                </div>
             </template>
 
             <!-- Filas -->
@@ -297,6 +300,5 @@ watch(isCreateModalOpen, async (isOpen) => {
 // 👉 Inicial
 onMounted(() => {
     fetchQuotations()
-    //fetchActiveData()
 })
 </script>

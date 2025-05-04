@@ -6,6 +6,10 @@
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                     <h1 class="text-2xl font-bold text-gray-800">Gestión de Plataformas</h1>
                 </div>
+
+                <div class="space-y-1 text-sm text-gray-600 leading-relaxed">
+                    <p>Administra los registros de plataformas disponibles en la base de datos.</p>
+                </div>
             </template>
 
             <!-- Filtro -->
