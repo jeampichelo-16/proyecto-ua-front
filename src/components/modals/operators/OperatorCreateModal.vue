@@ -7,51 +7,44 @@
                 <div class="grid sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block mb-1 font-medium">Nombre</label>
-                        <input v-model="form.firstName" class="w-full border rounded px-3 py-2"
-                            :disabled="isSubmitting" />
+                        <input v-model="form.firstName" :disabled="isSubmitting" :class="inputClass" />
                     </div>
 
                     <div>
                         <label class="block mb-1 font-medium">Apellido</label>
-                        <input v-model="form.lastName" class="w-full border rounded px-3 py-2"
-                            :disabled="isSubmitting" />
+                        <input v-model="form.lastName" :disabled="isSubmitting" :class="inputClass" />
                     </div>
 
                     <div>
                         <label class="block mb-1 font-medium">DNI</label>
-                        <input v-model="form.dni" class="w-full border rounded px-3 py-2" :disabled="isSubmitting" />
+                        <input v-model="form.dni" :disabled="isSubmitting" :class="inputClass" />
                     </div>
 
                     <div>
                         <label class="block mb-1 font-medium">Teléfono</label>
-                        <input v-model="form.phone" class="w-full border rounded px-3 py-2" :disabled="isSubmitting" />
+                        <input v-model="form.phone" :disabled="isSubmitting" :class="inputClass" />
                     </div>
 
                     <div class="sm:col-span-2">
                         <label class="block mb-1 font-medium">Correo</label>
-                        <input type="email" v-model="form.email" class="w-full border rounded px-3 py-2"
-                            :disabled="isSubmitting" />
+                        <input type="email" v-model="form.email" :disabled="isSubmitting" :class="inputClass" />
                     </div>
 
                     <!-- Certificado Operatividad -->
                     <div>
                         <label class="block mb-1 font-medium">Cert. Operatividad (PDF)</label>
                         <input type="file" accept="application/pdf"
-                            @change="onFileChange('operativityCertificatePath', $event)"
-                            class="w-full file:mr-2 file:rounded file:border file:border-gray-300 file:bg-white file:px-3 file:py-1" />
-                        <div v-if="form.operativityCertificatePath"
-                            class="text-xs mt-1 flex items-center justify-between">
-                            <span class="truncate">{{ form.operativityCertificatePath.name }}</span>
-                            <div class="flex gap-2">
+                            @change="onFileChange('operativityCertificatePath', $event)" :disabled="isSubmitting"
+                            :class="fileInputClass" />
+                        <div v-if="form.operativityCertificatePath" class="text-xs mt-1">
+                            <span class="truncate block">{{ form.operativityCertificatePath.name }}</span>
+                            <div class="flex gap-2 mt-1">
                                 <button v-if="filePreviewUrl.operativity" type="button"
                                     @click="previewFile(filePreviewUrl.operativity)"
-                                    class="text-blue-600 hover:underline">
-                                    Ver
-                                </button>
-                                <button type="button" @click="clearFile('operativityCertificatePath')"
-                                    class="text-red-600 hover:underline">
-                                    Quitar
-                                </button>
+                                    class="text-blue-600 hover:underline">Ver</button>
+                                <button v-if="!isSubmitting" type="button"
+                                    @click="clearFile('operativityCertificatePath')"
+                                    class="text-red-600 hover:underline">Quitar</button>
                             </div>
                         </div>
                     </div>
@@ -60,18 +53,14 @@
                     <div>
                         <label class="block mb-1 font-medium">Examen Médico (EMO PDF)</label>
                         <input type="file" accept="application/pdf" @change="onFileChange('emoPDFPath', $event)"
-                            class="w-full file:mr-2 file:rounded file:border file:border-gray-300 file:bg-white file:px-3 file:py-1" />
-                        <div v-if="form.emoPDFPath" class="text-xs mt-1 flex items-center justify-between">
-                            <span class="truncate">{{ form.emoPDFPath.name }}</span>
-                            <div class="flex gap-2">
+                            :disabled="isSubmitting" :class="fileInputClass" />
+                        <div v-if="form.emoPDFPath" class="text-xs mt-1">
+                            <span class="truncate block">{{ form.emoPDFPath.name }}</span>
+                            <div class="flex gap-2 mt-1">
                                 <button v-if="filePreviewUrl.emo" type="button" @click="previewFile(filePreviewUrl.emo)"
-                                    class="text-blue-600 hover:underline">
-                                    Ver
-                                </button>
-                                <button type="button" @click="clearFile('emoPDFPath')"
-                                    class="text-red-600 hover:underline">
-                                    Quitar
-                                </button>
+                                    class="text-blue-600 hover:underline">Ver</button>
+                                <button v-if="!isSubmitting" type="button" @click="clearFile('emoPDFPath')"
+                                    class="text-red-600 hover:underline">Quitar</button>
                             </div>
                         </div>
                     </div>
@@ -100,11 +89,11 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import BaseModal from '../BaseModal.vue'
-import { createOperator } from '../../services/admin.service'
-import { notifyError, notifySuccess } from '../../utils/notify'
-import { getPDFBlobURL, validatePDF } from '../../utils/pdfUtils';
-import { buildCreateFormData, resetForm } from '../../utils/formUtils';
+import BaseModal from '../../BaseModal.vue'
+import { createOperator } from '../../../services/admin.service'
+import { notifyError, notifySuccess } from '../../../utils/notify'
+import { getPDFBlobURL, validatePDF } from '../../../utils/pdfUtils'
+import { buildCreateFormData, resetForm } from '../../../utils/formUtils'
 
 const props = defineProps<{ isOpen: boolean }>()
 const emit = defineEmits(['close', 'created'])
@@ -121,10 +110,7 @@ const form = ref({
     emoPDFPath: null as File | null
 })
 
-const filePreviewUrl = ref({
-    operativity: '',
-    emo: ''
-})
+const filePreviewUrl = ref({ operativity: '', emo: '' })
 
 function clearFile(field: 'emoPDFPath' | 'operativityCertificatePath') {
     form.value[field] = null
@@ -138,9 +124,7 @@ function previewFile(url: string) {
 
 function onFileChange(field: 'emoPDFPath' | 'operativityCertificatePath', e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0]
-    if (!file) return
-
-    if (!validatePDF(file)) return
+    if (!file || !validatePDF(file)) return
 
     form.value[field] = file
     const blob = getPDFBlobURL(file)
@@ -186,5 +170,7 @@ watch(() => props.isOpen, (open) => {
     }
 })
 
-
-</script>
+// Classes
+const inputClass = 'w-full border rounded px-3 py-2 bg-white disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed'
+const fileInputClass = 'block w-full text-sm border rounded text-gray-600 bg-white border-gray-300 file:mr-2 file:rounded file:border-0 file:bg-yellow-50 file:text-yellow-700 file:px-3 file:py-1 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 disabled:file:bg-gray-200 disabled:file:text-gray-400 disabled:file:cursor-not-allowed'
+</script>   

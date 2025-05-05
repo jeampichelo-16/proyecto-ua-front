@@ -27,7 +27,7 @@ export const adminSidebarLinks: SidebarLink[] = [
     to: AdminRoutes.MANAGE_PLATFORMS,
     icon: Box,
   },
-  { label: "Gestionar Usuarios", to: AdminRoutes.MANAGE_USERS, icon: UserCog },
+  { label: "Gestionar Empleados", to: AdminRoutes.MANAGE_EMPLOYEES, icon: UserCog },
   { label: "Gestionar Operarios", to: AdminRoutes.MANAGE_OPERATORS, icon: UserCog },
   { label: "Cotizaciones", to: UserRoutes.QUOTATIONS, icon: FileText },
   { label: "Perfil", to: UserRoutes.PROFILE, icon: User },

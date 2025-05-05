@@ -5,7 +5,6 @@
       <template #header>
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
           <h1 class="text-2xl font-bold text-gray-800">Gestión de Operarios</h1>
-
           <button @click="isCreateModalOpen = true"
             class="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition">
             <PlusCircle class="w-4 h-4" />
@@ -32,11 +31,11 @@
           <td class="px-6 py-3">{{ op.email }}</td>
           <td class="px-6 py-3">{{ op.dni }}</td>
           <td class="px-6 py-3">
-            <span :class="[
-              'inline-block px-2 py-1 text-xs font-semibold rounded-full',
-              op.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            ]">
-              {{ op.isActive ? 'Activo' : 'Inactivo' }}
+            <span
+              class="inline-block px-2 py-1 text-xs font-semibold rounded-full"
+              :class="getOperatorStatusBadgeClass(op.operatorStatus)"
+            >
+              {{ getOperatorStatusLabel(op.operatorStatus) }}
             </span>
           </td>
           <td class="px-6 py-3 text-sm text-gray-700 whitespace-nowrap">
@@ -61,7 +60,8 @@
     </BaseDataTable>
 
     <!-- Modales -->
-    <OperatorDetailModal :isOpen="isModalOpen" :operator="selectedOperator" @close="isModalOpen = false" />
+    <OperatorDetailModal :isOpen="isModalOpen" :operator="selectedOperator" @close="isModalOpen = false"
+      @updated="fetchOperators" />
 
     <OperatorDeleteModal :isOpen="isDeleteModalOpen" :operator="operatorToDelete" :isDeleting="isDeleting"
       @close="isDeleteModalOpen = false" @confirm="confirmDeleteOperator" />
@@ -84,11 +84,12 @@ import { notifyError, notifySuccess } from '../../utils/notify'
 import BaseDataTable from '../../components/BaseDataTable.vue'
 import BasePagination from '../../components/BasePagination.vue'
 
-import OperatorDetailModal from '../../components/operators/OperatorDetailModal.vue'
-import OperatorDeleteModal from '../../components/operators/OperatorDeleteModal.vue'
-import OperatorCreateModal from '../../components/operators/OperatorCreateModal.vue'
+import OperatorDetailModal from '../../components/modals/operators/OperatorDetailModal.vue'
+import OperatorDeleteModal from '../../components/modals/operators/OperatorDeleteModal.vue'
+import OperatorCreateModal from '../../components/modals/operators/OperatorCreateModal.vue'
 
 import { Eye, PlusCircle, Trash2 } from 'lucide-vue-next'
+import { getOperatorStatusBadgeClass, getOperatorStatusLabel } from '../../utils/operatorStatusUtils'
 
 const operators = ref<Operator[]>([])
 const currentPage = ref(1)

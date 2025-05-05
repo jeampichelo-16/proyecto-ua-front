@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import BaseModal from '../BaseModal.vue'
+import BaseModal from '../../BaseModal.vue'
 import OperatorEditSection from './OperatorEditSection.vue'
 import { FileText } from 'lucide-vue-next'
-import type { Operator } from '../../types/operator'
-import { OperatorStatus } from '../../types/operator'
+import type { Operator } from '../../../types/operator'
+import { OperatorStatus } from '../../../types/operator'
 
 const props = defineProps<{ isOpen: boolean; operator: Operator | null }>()
 

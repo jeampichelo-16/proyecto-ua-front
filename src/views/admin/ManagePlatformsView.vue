@@ -5,6 +5,12 @@
             <template #header>
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                     <h1 class="text-2xl font-bold text-gray-800">Gestión de Plataformas</h1>
+
+                    <button @click="isCreateModalOpen = true"
+                        class="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition">
+                        <PlusCircle class="w-4 h-4" />
+                        Registrar Plataforma
+                    </button>
                 </div>
 
                 <div class="space-y-1 text-sm text-gray-600 leading-relaxed">
@@ -28,21 +34,22 @@
                     <td class="px-6 py-3">{{ machine.typePlatform }}</td>
                     <td class="px-6 py-3">S/ {{ machine.price }}</td>
                     <td class="px-6 py-3">
-                        <span :class="[
-                            'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
-                            machine.status === 'ACTIVO' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        ]">
-                            {{ machine.status }}
+                        <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold"
+                            :class="getMachineStatusBadgeClass(machine.status)">
+                            {{ getMachineStatusLabel(machine.status) }}
                         </span>
                     </td>
                     <td class="px-6 py-3 whitespace-nowrap text-sm">
                         <div class="flex gap-2">
                             <button @click="viewMachine(machine.serial)"
-                                class="text-blue-600 hover:underline text-xs">Ver</button>
-                            <!--<button @click="editMachine(machine.serial)"
-                                class="text-yellow-600 hover:underline text-xs">Editar</button>
-                            <button @click="deleteMachine(machine.serial)"
-                                class="text-red-600 hover:underline text-xs">Eliminar</button>-->
+                                class="flex items-center gap-1 text-blue-600 hover:underline text-xs">
+                                <Eye class="w-4 h-4" /> Ver
+                            </button>
+
+                            <button @click="requestDeleteMachine(machine)"
+                                class="flex items-center gap-1 text-red-600 hover:underline text-xs">
+                                <Trash2 class="w-4 h-4" /> Eliminar
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -56,51 +63,11 @@
         </BaseDataTable>
 
         <!-- Modal de Detalles -->
-        <BaseModal v-model="isModalOpen">
-            <div class="space-y-6">
-                <div class="border-b pb-2">
-                    <h2 class="text-lg font-semibold text-gray-800">Detalles de la Plataforma</h2>
-                    <p class="text-sm text-gray-500">Información completa del registro seleccionado.</p>
-                </div>
-
-                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm text-gray-700">
-                    <template v-for="(field, index) in machineFields" :key="index">
-                        <div :class="index">
-                            <dt class="font-medium text-gray-500">{{ field.label }}</dt>
-                            <dd v-if="!field.rawHtml">{{ field.value() }}</dd>
-                            <dd v-else v-html="field.value()" />
-                        </div>
-                    </template>
-
-                    <!-- Certificados -->
-                    <div class="sm:col-span-2 space-y-2">
-                        <div class="flex items-center gap-2">
-                            <FileText class="w-4 h-4 text-gray-600" />
-                            <span>Certificado de operatividad:</span>
-                            <a :href="selectedMachine?.operativityCertificatePath" target="_blank"
-                                class="text-blue-600 hover:underline">
-                                Ver PDF
-                            </a>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <FileText class="w-4 h-4 text-gray-600" />
-                            <span>Documento de propiedad:</span>
-                            <a :href="selectedMachine?.ownershipDocumentPath" target="_blank"
-                                class="text-indigo-600 hover:underline">
-                                Ver PDF
-                            </a>
-                        </div>
-                    </div>
-                </dl>
-
-                <div class="pt-4 border-t flex justify-end">
-                    <button @click="isModalOpen = false"
-                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm">
-                        Cerrar
-                    </button>
-                </div>
-            </div>
-        </BaseModal>
+        <PlatformDetailsModal :isOpen="isModalOpen" :machine="selectedMachine" @close="isModalOpen = false"
+            @updated="handleMachineUpdated" />
+        <PlatformDeleteModal :isOpen="isDeleteModalOpen" :isDeleting="isDeleting" :machine="machineToDelete"
+            @close="isDeleteModalOpen = false" @confirm="confirmDeleteMachine" />
+        <PlatformCreateModal :isOpen="isCreateModalOpen" @close="isCreateModalOpen = false" @created="fetchMachines" />
     </div>
 </template>
 
@@ -110,8 +77,13 @@ import { getPaginatedMachines, getMachineBySerial } from '../../services/user.se
 import type { Machine } from '../../types/platform'
 import BaseDataTable from '../../components/BaseDataTable.vue'
 import BasePagination from '../../components/BasePagination.vue'
-import BaseModal from '../../components/BaseModal.vue'
-import { FileText } from 'lucide-vue-next'
+import { PlusCircle, Trash2, Eye } from 'lucide-vue-next'
+import { getMachineStatusBadgeClass, getMachineStatusLabel } from '../../utils/machineStatusUtils'
+import PlatformCreateModal from '../../components/modals/platform/PlatformCreateModal.vue'
+import PlatformDetailsModal from '../../components/modals/platform/PlatformDetailsModal.vue'
+import PlatformDeleteModal from '../../components/modals/platform/PlatformDeleteModal.vue'
+import { notifyError, notifySuccess } from '../../utils/notify'
+import { deletePlatformBySerial } from '../../services/admin.service'
 
 // State
 const machines = ref<Machine[]>([])
@@ -121,6 +93,10 @@ const pageSize = ref(10)
 const searchQuery = ref('')
 const isModalOpen = ref(false)
 const selectedMachine = ref<Machine | null>(null)
+const isCreateModalOpen = ref(false)
+const machineToDelete = ref<Machine | null>(null)
+const isDeleteModalOpen = ref(false)
+const isDeleting = ref(false)
 
 // Columns
 const columns = [
@@ -130,25 +106,6 @@ const columns = [
     { label: 'Precio', key: 'price' },
     { label: 'Estado', key: 'status' },
     { label: 'Acciones', key: 'actions' },
-]
-
-// Mapeo dinámico para el modal
-const machineFields = [
-    { label: 'Serial', value: () => selectedMachine.value?.serial },
-    { label: 'Marca', value: () => selectedMachine.value?.brand },
-    { label: 'Modelo', value: () => selectedMachine.value?.model },
-    { label: 'Tipo de Plataforma', value: () => selectedMachine.value?.typePlatform },
-    { label: 'Precio', value: () => `S/ ${selectedMachine.value?.price}` },
-    { label: 'Descripción', value: () => selectedMachine.value?.description },
-    {
-        label: 'Estado',
-        value: () =>
-            `<span class='px-2 py-1 rounded-full text-xs font-semibold ${selectedMachine.value?.status === 'ACTIVO'
-                ? 'bg-green-100 text-green-700'
-                : 'bg-red-100 text-red-700'
-            }'>${selectedMachine.value?.status}</span>`,
-        rawHtml: true,
-    },
 ]
 
 // Filtro
@@ -182,6 +139,33 @@ async function viewMachine(serial: string) {
     } catch (err) {
         console.error('Error al obtener detalles de la máquina:', err)
     }
+}
+
+function requestDeleteMachine(machine: Machine) {
+    machineToDelete.value = machine
+    isDeleteModalOpen.value = true
+}
+
+async function confirmDeleteMachine() {
+    if (!machineToDelete.value) return
+    isDeleting.value = true
+    try {
+        await deletePlatformBySerial(machineToDelete.value.serial)
+        notifySuccess({ title: 'Plataforma eliminada', description: 'Se eliminó correctamente.' })
+        isDeleteModalOpen.value = false
+        machineToDelete.value = null
+        await fetchMachines()
+    } catch (err) {
+        notifyError({ title: 'Error', description: 'No se pudo eliminar la plataforma.' })
+    } finally {
+        isDeleting.value = false
+    }
+}
+
+async function handleMachineUpdated() {
+    isModalOpen.value = false
+    selectedMachine.value = null
+    await fetchMachines() // <- ¡Esto recarga la tabla!
 }
 
 watch(currentPage, fetchMachines)

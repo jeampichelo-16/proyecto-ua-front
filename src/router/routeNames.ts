@@ -11,7 +11,7 @@ export const AuthRoutes = {
 export const AdminRoutes = {
   DASHBOARD: "/admin/dashboard", // CRUD de clientes
   MANAGE_PLATFORMS: "/admin/gestionar-plataformas", // CRUD de plataformas (maquinarias)
-  MANAGE_USERS: "/admin/gestionar-usuarios", // CRUD de usuarios
+  MANAGE_EMPLOYEES: "/admin/gestionar-empleados", // CRUD de usuarios
   MANAGE_OPERATORS: "/admin/gestionar-operarios", // CRUD de operarios
 } as const;
 

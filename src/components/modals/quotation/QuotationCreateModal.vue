@@ -68,9 +68,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { PlusCircle } from 'lucide-vue-next'
-import BaseModal from '../BaseModal.vue'
-import { createQuotation } from '../../services/user.service'
-import { notifyError, notifySuccess } from '../../utils/notify'
+import BaseModal from '../../BaseModal.vue'
+import { createQuotation } from '../../../services/user.service'
+import { notifyError, notifySuccess } from '../../../utils/notify'
 
 defineProps<{
     isOpen: boolean

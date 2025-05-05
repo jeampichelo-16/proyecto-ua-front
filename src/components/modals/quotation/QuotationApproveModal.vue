@@ -44,9 +44,9 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import BaseModal from '../BaseModal.vue'
+import BaseModal from '../../BaseModal.vue'
 import { CheckCircle } from 'lucide-vue-next'
-import type { QuotationDetail } from '../../types/quotation';
+import type { QuotationDetail } from '../../../types/quotation';
 
 const props = defineProps<{
   isOpen: boolean

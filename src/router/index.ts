@@ -76,7 +76,7 @@ const routes = [
     children: [
       {
         path: "",
-        component: () => import("../views/user/ManagePlatformsView.vue"),
+        component: () => import("../views/admin/ManagePlatformsView.vue"),
       },
     ],
   },
@@ -93,15 +93,15 @@ const routes = [
       },
     ],
   },
-  //GESTIONAR USUARIIS
+  //GESTIONAR EMPLEADOS
   {
-    path: AdminRoutes.MANAGE_USERS,
+    path: AdminRoutes.MANAGE_EMPLOYEES,
     component: BaseLayout,
     meta: { requiresAuth: true, role: [Role.ADMIN] },
     children: [
       {
         path: "",
-        component: () => import("../views/admin/ManageUsersView.vue"),
+        component: () => import("../views/admin/ManageEmployeeView.vue"),
       },
     ],
   },

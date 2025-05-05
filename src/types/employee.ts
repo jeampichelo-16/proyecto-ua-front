@@ -9,3 +9,21 @@ export interface Employee {
   role: "EMPLEADO" | string;
   isActive: boolean;
 }
+
+export interface CreateEmployeeDTO {
+  email: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  dni: string;
+  phone: string;
+}
+
+export interface UpdateEmployeeDto {
+  firstName: string;
+  lastName: string;
+  username: string;
+  dni: string;
+  phone: string;
+  isActive: boolean;
+}

@@ -1,8 +1,15 @@
 <template>
     <div class="p-6 max-w-4xl space-y-6">
         <!-- Título -->
-        <div class="flex items-center justify-between">
-            <h1 class="text-3xl font-bold text-gray-800">Perfil del Usuario</h1>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <h1 class="text-2xl font-bold text-gray-800">Perfil del usuario</h1>
+        </div>
+
+        <div class="space-y-1 text-sm text-gray-600 leading-relaxed">
+            <p>
+                Aquí puedes ver y editar la información de tu perfil. Asegúrate de que todos los datos sean correctos y
+                actualizados.
+            </p>
         </div>
 
         <!-- Card -->

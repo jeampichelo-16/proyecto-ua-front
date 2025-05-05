@@ -1,6 +1,8 @@
 import api from "../lib/axios";
-import type { Employee } from "../types/employee";
+import type { Employee, UpdateEmployeeDto } from "../types/employee";
+import type { CreateEmployeeDTO } from "../types/employee";
 import type { Operator } from "../types/operator";
+import type { Machine } from "../types/platform";
 import { ErrorService } from "./error.service";
 
 export async function getPaginatedEmployees(page: number): Promise<{
@@ -96,6 +98,77 @@ export async function updateOperatorById(
         "Content-Type": "multipart/form-data",
       },
     });
+  } catch (error) {
+    const message = ErrorService.handle(error);
+    throw new Error(message);
+  }
+}
+
+export function createEmployee(data: CreateEmployeeDTO) {
+  try {
+    return api.post("/admin/employees", data);
+  } catch (error) {
+    const message = ErrorService.handle(error);
+    throw new Error(message);
+  }
+}
+
+export async function deleteEmployeeById(id: number): Promise<void> {
+  try {
+    await api.delete(`/admin/employees/${id}`);
+  } catch (error) {
+    const message = ErrorService.handle(error);
+    throw new Error(message);
+  }
+}
+
+export async function updateEmployeeById(
+  id: number,
+  payload: UpdateEmployeeDto
+) {
+  try {
+    const res = await api.patch(`/admin/employees/${id}`, payload);
+    return res.data;
+  } catch (error) {
+    const message = ErrorService.handle(error);
+    throw new Error(message);
+  }
+}
+
+export async function createPlatform(formData: FormData): Promise<Machine> {
+  try {
+    const res = await api.post("/admin/machines", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data.data;
+  } catch (error) {
+    const message = ErrorService.handle(error);
+    throw new Error(message);
+  }
+}
+
+export async function deletePlatformBySerial(serial: string): Promise<void> {
+  try {
+    await api.delete(`/admin/machines/${serial}`);
+  } catch (error) {
+    const message = ErrorService.handle(error);
+    throw new Error(message);
+  }
+}
+
+export async function updatePlatformBySerial(
+  serial: string,
+  formData: FormData
+): Promise<Machine> {
+  try {
+    const res = await api.patch(`/admin/machines/${serial}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data.data;
   } catch (error) {
     const message = ErrorService.handle(error);
     throw new Error(message);

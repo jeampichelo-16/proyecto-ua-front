@@ -25,9 +25,9 @@
 </template>
 
 <script setup lang="ts">
-import BaseModal from '../BaseModal.vue'
+import BaseModal from '../../BaseModal.vue'
 import { Trash2 } from 'lucide-vue-next'
-import type { Operator } from '../../types/operator'
+import type { Operator } from '../../../types/operator'
 
 defineProps<{
     isOpen: boolean

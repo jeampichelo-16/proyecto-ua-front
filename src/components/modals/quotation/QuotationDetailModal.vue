@@ -120,9 +120,9 @@
 
 <script setup lang="ts">
 import { FileText, Calendar, User, Mail, ClipboardList, Wrench } from 'lucide-vue-next'
-import BaseModal from '../BaseModal.vue'
-import { formatDate } from '../../utils/date'
-import type { QuotationDetail } from '../../types/quotation';
+import BaseModal from '../../BaseModal.vue'
+import { formatDate } from '../../../utils/date'
+import type { QuotationDetail } from '../../../types/quotation';
 
 defineProps<{
     isOpen: boolean

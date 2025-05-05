@@ -1,13 +1,25 @@
 // src/services/user.service.ts
 
 import api from "../lib/axios";
-import type { Client, PaginatedClientResponse } from "../types/client";
+import type {
+  Client,
+  CreateClientDto,
+  PaginatedClientResponse,
+  UpdateClientDto,
+} from "../types/client";
 import type {
   ActiveOperator,
   GetActiveOperatorsResponse,
 } from "../types/operator";
 import type { Machine, MachineResponse } from "../types/platform";
-import type { ActiveClient, ActivePlatform, ApproveQuotationPayload, CreateQuotationPayload, Quotation, QuotationDetail } from "../types/quotation";
+import type {
+  ActiveClient,
+  ActivePlatform,
+  ApproveQuotationPayload,
+  CreateQuotationPayload,
+  Quotation,
+  QuotationDetail,
+} from "../types/quotation";
 
 import type { UserResponseDto } from "../types/user";
 import { ErrorService } from "./error.service";
@@ -165,6 +177,35 @@ export async function getAvailableOperators(): Promise<
     }));
   } catch (err) {
     const message = ErrorService.handle(err);
+    throw new Error(message);
+  }
+}
+
+export async function deleteClientById(id: number): Promise<void> {
+  try {
+    await api.delete(`/users/clients/${id}`);
+  } catch (error) {
+    const message = ErrorService.handle(error);
+    throw new Error(message);
+  }
+}
+
+export async function createClient(payload: CreateClientDto) {
+  try {
+    const { data } = await api.post("/users/clients", payload);
+    return data;
+  } catch (error) {
+    const message = ErrorService.handle(error);
+    throw new Error(message);
+  }
+}
+
+export async function updateClientById(id: number, data: UpdateClientDto) {
+  try {
+    const res = await api.patch(`/users/clients/${id}`, data);
+    return res.data.data;
+  } catch (error) {
+    const message = ErrorService.handle(error);
     throw new Error(message);
   }
 }
