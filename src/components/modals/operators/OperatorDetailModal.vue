@@ -34,10 +34,13 @@ const operatorFields = computed(() => [
             `<span class='inline-block px-2 py-0.5 rounded-full text-xs font-semibold 
       ${props.operator?.operatorStatus === OperatorStatus.ACTIVO
                 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}'>
-      ${props.operator?.operatorStatus === OperatorStatus.ACTIVO ? 'Activo' : 'Inactivo'}</span>`,
+      ${props.operator?.operatorStatus === OperatorStatus.EN_TRABAJO
+                ? 'EN TRABAJO' : props.operator?.operatorStatus === OperatorStatus.ACTIVO
+                    ? 'ACTIVO' : 'INACTIVO'}
+        </span>`,
         rawHtml: true
     },
-
+    { label: 'Costo del servicio', value: () => props.operator?.costService ? `S/. ${props.operator.costService}` : '' },
 ])
 
 watch(() => props.isOpen, (open) => {

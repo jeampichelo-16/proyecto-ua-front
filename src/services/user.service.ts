@@ -110,20 +110,6 @@ export async function getQuotationById(id: number): Promise<QuotationDetail> {
   }
 }
 
-export async function approveQuotation(
-  payload: ApproveQuotationPayload
-): Promise<void> {
-  try {
-    await api.patch(`/users/quotations/${payload.quotationId}/activate`, {
-      deliveryAmount: payload.deliveryAmount,
-      ...(payload.operatorId ? { operatorId: payload.operatorId } : {}),
-    });
-  } catch (err) {
-    const message = ErrorService.handle(err);
-    throw new Error(message);
-  }
-}
-
 export async function getActiveClients(): Promise<ActiveClient[]> {
   try {
     const res = await api.get("/users/active-clients");
@@ -136,7 +122,7 @@ export async function getActiveClients(): Promise<ActiveClient[]> {
 
 export async function getActivePlatforms(): Promise<ActivePlatform[]> {
   try {
-    const res = await api.get("/admin/active-machines");
+    const res = await api.get("/users/active-machines");
     return res.data.data;
   } catch (error) {
     const message = ErrorService.handle(error);
@@ -155,9 +141,36 @@ export async function createQuotation(
   }
 }
 
+export async function approveQuotation(
+  payload: ApproveQuotationPayload
+): Promise<void> {
+  try {
+    await api.patch(`/users/quotations/activate/${payload.quotationId}`, {
+      deliveryAmount: payload.deliveryAmount,
+      ...(payload.operatorId ? { operatorId: payload.operatorId } : {}),
+    });
+  } catch (err) {
+    const message = ErrorService.handle(err);
+    throw new Error(message);
+  }
+}
+
 export async function cancelQuotation(quotationId: number): Promise<void> {
   try {
-    await api.patch(`/users/quotations/${quotationId}/cancel`);
+    await api.patch(`/users/quotations/cancel/${quotationId}`);
+  } catch (error) {
+    const message = ErrorService.handle(error);
+    throw new Error(message);
+  }
+}
+
+export async function markQuotationAsPaid(id: number, data: FormData) {
+  try {
+    await api.patch(`/users/quotations/pay/${id}`, data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   } catch (error) {
     const message = ErrorService.handle(error);
     throw new Error(message);
@@ -169,7 +182,7 @@ export async function getAvailableOperators(): Promise<
 > {
   try {
     const res = await api.get<GetActiveOperatorsResponse>(
-      "/admin/active-operators"
+      "/users/active-operators"
     );
     return res.data.data.map((op: ActiveOperator) => ({
       id: op.id,

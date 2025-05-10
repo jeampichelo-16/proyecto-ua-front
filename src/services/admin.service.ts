@@ -174,3 +174,13 @@ export async function updatePlatformBySerial(
     throw new Error(message);
   }
 }
+
+export async function getAdminDashboard() {
+  try {
+    const res = await api.get("/admin/dashboard");
+    return res.data.data;
+  } catch (error) {
+    const message = ErrorService.handle(error);
+    throw new Error(message);
+  }
+}

@@ -17,6 +17,7 @@ export interface Operator {
   emoPDFPath: string;
   operativityCertificatePath: string;
   phone: string;
+  costService: number;
   isActive: boolean;
 }
 

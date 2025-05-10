@@ -10,8 +10,7 @@
                 <!-- Cliente -->
                 <div>
                     <label class="block mb-1 text-gray-700">Cliente</label>
-                    <select v-model="form.clientId" :disabled="isLoading" class="w-full border rounded px-3 py-2"
-                        name="client">
+                    <select v-model="form.clientId" :disabled="isLoading" class="w-full border rounded px-3 py-2">
                         <option disabled value="">Seleccione</option>
                         <option v-for="c in clients" :key="c.id" :value="c.id">{{ c.companyName }}</option>
                     </select>
@@ -20,8 +19,7 @@
                 <!-- Plataforma -->
                 <div>
                     <label class="block mb-1 text-gray-700">Plataforma</label>
-                    <select v-model="form.platformId" :disabled="isLoading" class="w-full border rounded px-3 py-2"
-                        name="platform">
+                    <select v-model="form.platformId" :disabled="isLoading" class="w-full border rounded px-3 py-2">
                         <option disabled value="">Seleccione</option>
                         <option v-for="p in platforms" :key="p.id" :value="p.id">
                             {{ p.serial }} ({{ p.brand }} - {{ p.model }})
@@ -33,18 +31,25 @@
                 <div class="sm:col-span-2">
                     <label class="block mb-1 text-gray-700">Descripción</label>
                     <textarea v-model="form.description" :disabled="isLoading" rows="3"
-                        class="w-full border rounded px-3 py-2" name="description" autocomplete="off" />
+                        class="w-full border rounded px-3 py-2" />
                 </div>
 
-                <!-- Días -->
+                <!-- Fecha de inicio -->
                 <div>
-                    <label class="block mb-1 text-gray-700">Días</label>
-                    <input type="number" min="1" v-model="form.days" :disabled="isLoading"
-                        class="w-full border rounded px-3 py-2" name="days" autocomplete="off" />
+                    <label class="block mb-1 text-gray-700">Fecha de inicio</label>
+                    <input type="date" v-model="form.startDate" :min="today" :disabled="isLoading"
+                        class="w-full border rounded px-3 py-2" />
+                </div>
+
+                <!-- Fecha de fin -->
+                <div>
+                    <label class="block mb-1 text-gray-700">Fecha de fin</label>
+                    <input type="date" v-model="form.endDate" :min="form.startDate || today" :disabled="isLoading"
+                        class="w-full border rounded px-3 py-2" />
                 </div>
 
                 <!-- Requiere operador -->
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-2 sm:col-span-2">
                     <input type="checkbox" id="need-operator" v-model="form.isNeedOperator" :disabled="isLoading" />
                     <label for="need-operator" class="text-sm text-gray-700">¿Requiere operador?</label>
                 </div>
@@ -81,27 +86,43 @@ defineProps<{
 const emit = defineEmits(['update:isOpen', 'created', 'cancel'])
 
 const isLoading = ref(false)
+const today = new Date().toISOString().split('T')[0]
+
 
 const form = ref({
     clientId: null as number | null,
     platformId: null as number | null,
     description: '',
-    days: 1,
+    startDate: '',
+    endDate: '',
     isNeedOperator: false
 })
 
 async function handleSubmit() {
-    const { clientId, platformId, description, days } = form.value
+    const { clientId, platformId, description, startDate, endDate } = form.value
 
-    if (!clientId || !platformId || !description.trim() || days <= 0) {
-        notifyError({ title: 'Campos incompletos', description: 'Completa todos los campos correctamente.' })
+    if (!clientId || !platformId || !description.trim() || !startDate || !endDate) {
+        notifyError({ title: 'Campos requeridos', description: 'Completa todos los campos obligatorios.' })
+        return
+    }
+
+    if (new Date(endDate) < new Date(startDate)) {
+        notifyError({ title: 'Rango inválido', description: 'La fecha de fin debe ser posterior a la de inicio.' })
         return
     }
 
     isLoading.value = true
 
     try {
-        await createQuotation({ ...form.value, clientId: clientId!, platformId: platformId! })
+        await createQuotation({
+            clientId,
+            platformId,
+            description,
+            startDate: new Date(startDate).toISOString(),
+            endDate: new Date(endDate).toISOString(),
+            isNeedOperator: form.value.isNeedOperator
+        })
+
         notifySuccess({ title: 'Cotización creada', description: 'Se ha creado correctamente.' })
         emit('update:isOpen', false)
         emit('created')
@@ -118,7 +139,8 @@ function resetForm() {
         clientId: null,
         platformId: null,
         description: '',
-        days: 1,
+        startDate: '',
+        endDate: '',
         isNeedOperator: false
     }
 }
