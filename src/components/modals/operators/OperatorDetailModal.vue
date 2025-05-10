@@ -1,58 +1,5 @@
-<script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import BaseModal from '../../BaseModal.vue'
-import OperatorEditSection from './OperatorEditSection.vue'
-import { FileText } from 'lucide-vue-next'
-import type { Operator } from '../../../types/operator'
-import { OperatorStatus } from '../../../types/operator'
-
-const props = defineProps<{ isOpen: boolean; operator: Operator | null }>()
-
-const emit = defineEmits(['close', 'updated'])
-
-const isEditing = ref(false)
-
-function enableEdit() {
-    isEditing.value = true
-}
-function cancelEdit() {
-    isEditing.value = false
-}
-function handleUpdated() {
-    emit('updated')
-    emit('close')
-}
-const operatorFields = computed(() => [
-    { label: 'Nombre completo', value: () => `${props.operator?.firstName ?? ''} ${props.operator?.lastName ?? ''}` },
-    { label: 'Correo electrónico', value: () => props.operator?.email ?? '' },
-    { label: 'DNI', value: () => props.operator?.dni ?? '' },
-    { label: 'Teléfono', value: () => props.operator?.phone ?? '' },
-    { label: 'Rol', value: () => props.operator?.role?.toUpperCase() ?? '' },
-    {
-        label: 'Estado',
-        value: () =>
-            `<span class='inline-block px-2 py-0.5 rounded-full text-xs font-semibold 
-      ${props.operator?.operatorStatus === OperatorStatus.ACTIVO
-                ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}'>
-      ${props.operator?.operatorStatus === OperatorStatus.EN_TRABAJO
-                ? 'EN TRABAJO' : props.operator?.operatorStatus === OperatorStatus.ACTIVO
-                    ? 'ACTIVO' : 'INACTIVO'}
-        </span>`,
-        rawHtml: true
-    },
-    { label: 'Costo del servicio', value: () => props.operator?.costService ? `S/. ${props.operator.costService}` : '' },
-])
-
-watch(() => props.isOpen, (open) => {
-    if (!open) {
-        isEditing.value = false
-    }
-})
-
-</script>
-
 <template>
-    <BaseModal :modelValue="isOpen" @update:modelValue="emit('close')">
+    <BaseModal :modelValue="isOpen" @update:modelValue="emit('close')" :hideCloseButton="isSubmitting" >
         <div class="space-y-6">
             <div class="border-b pb-2 flex justify-between items-center">
                 <div>
@@ -93,7 +40,69 @@ watch(() => props.isOpen, (open) => {
             </div>
 
             <!-- Edición -->
-            <OperatorEditSection v-else :operator="operator" @updated="handleUpdated" @cancel="cancelEdit" />
+            <OperatorEditSection v-else :operator="operator" @updated="handleUpdated" @cancel="cancelEdit"
+                @submitting="isSubmitting = $event" />
         </div>
     </BaseModal>
 </template>
+
+<script setup lang="ts">
+import { ref, computed, watch } from 'vue'
+import BaseModal from '../../BaseModal.vue'
+import OperatorEditSection from './OperatorEditSection.vue'
+import { FileText } from 'lucide-vue-next'
+import type { Operator } from '../../../types/operator'
+import {
+  getOperatorStatusBadgeClass,
+  getOperatorStatusLabel
+} from '../../../utils/operatorStatusUtils' // ✅ Ajusta el path si es necesario
+
+const props = defineProps<{ isOpen: boolean; operator: Operator | null }>()
+
+const emit = defineEmits(['close', 'updated'])
+
+const isEditing = ref(false)
+const isSubmitting = ref(false)
+
+function enableEdit() {
+  isEditing.value = true
+}
+function cancelEdit() {
+  isEditing.value = false
+}
+function handleUpdated() {
+  emit('updated')
+  emit('close')
+}
+
+const operatorFields = computed(() => [
+  {
+    label: 'Nombre completo',
+    value: () => `${props.operator?.firstName ?? ''} ${props.operator?.lastName ?? ''}`
+  },
+  { label: 'Correo electrónico', value: () => props.operator?.email ?? '' },
+  { label: 'DNI', value: () => props.operator?.dni ?? '' },
+  { label: 'Teléfono', value: () => props.operator?.phone ?? '' },
+  { label: 'Rol', value: () => props.operator?.role?.toUpperCase() ?? '' },
+  {
+    label: 'Estado',
+    rawHtml: true,
+    value: () => {
+      const status = props.operator?.operatorStatus
+      const label = getOperatorStatusLabel(status!)
+      const cls = getOperatorStatusBadgeClass(status!)
+      return `<span class="inline-block px-2 py-0.5 rounded-full text-xs font-semibold ${cls}">${label}</span>`
+    }
+  },
+  {
+    label: 'Costo del servicio',
+    value: () => props.operator?.costService ? `S/. ${props.operator.costService}` : ''
+  }
+])
+
+watch(() => props.isOpen, (open) => {
+  if (!open) {
+    isEditing.value = false
+  }
+})
+</script>

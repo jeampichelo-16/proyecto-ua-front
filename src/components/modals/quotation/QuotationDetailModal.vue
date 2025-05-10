@@ -85,28 +85,13 @@
       <!-- Estado y Fechas -->
       <hr class="border-gray-200" />
       <section class="grid gap-2 text-sm text-gray-700">
-        <div class="flex items-center gap-2">
-          <ClipboardList class="w-4 h-4 text-gray-500" />
-          <p><span class="font-medium">Estado:</span> {{ quotation?.status }}</p>
-        </div>
-        <div class="flex items-center gap-2">
-          <Calendar class="w-4 h-4 text-gray-500" />
-          <p><span class="font-medium">Fecha de creación:</span> {{ formatDate(quotation?.createdAt ?? '') }}</p>
-        </div>
-        <div v-if="quotation?.status === 'PENDIENTE_PAGO' || quotation?.status === 'PAGADO'"
-          class="flex items-center gap-2">
-          <Calendar class="w-4 h-4 text-gray-500" />
-          <p><span class="font-medium">Fecha de actualización de datos:</span> {{
-            formatDate(quotation.statusToPendingPagoAt) }}
+        <div v-for="(field, idx) in quotationFields" :key="idx" class="flex items-start gap-2">
+          <component :is="field.icon" class="w-4 h-4 mt-1 text-gray-500" />
+          <p>
+            <span class="font-medium">{{ field.label }}:</span>
+            <span v-if="!field.isHtml">{{ field.value }}</span>
+            <span v-else v-html="field.value" />
           </p>
-        </div>
-        <div v-if="quotation?.status === 'RECHAZADO'" class="flex items-center gap-2">
-          <Calendar class="w-4 h-4 text-gray-500" />
-          <p><span class="font-medium">Fecha de rechazo:</span> {{ formatDate(quotation.statusToRechazadoAt) }}</p>
-        </div>
-        <div v-if="quotation?.status === 'PAGADO'" class="flex items-center gap-2">
-          <Calendar class="w-4 h-4 text-gray-500" />
-          <p><span class="font-medium">Fecha de pago:</span> {{ formatDate(quotation.statusToPagadoAt) }}</p>
         </div>
       </section>
 
@@ -144,9 +129,11 @@
 import { FileText, Calendar, User, Mail, ClipboardList, Wrench } from 'lucide-vue-next'
 import BaseModal from '../../BaseModal.vue'
 import { formatDate } from '../../../utils/date'
-import type { QuotationDetail } from '../../../types/quotation'
+import type { QuotationDetail, QuotationStatus } from '../../../types/quotation'
+import { getQuotationStatusBadgeClass, getQuotationStatusLabel } from '../../../utils/quotationStatusUtils';
+import { computed } from 'vue';
 
-defineProps<{
+const props = defineProps<{
   isOpen: boolean
   quotation: QuotationDetail | null
 }>()
@@ -155,10 +142,55 @@ defineEmits(['close'])
 
 const currency = (val?: number | null) => `S/ ${val?.toFixed(2) ?? '0.00'}`
 
+const quotationFields = computed(() => [
+  {
+    icon: ClipboardList,
+    label: 'Estado',
+    isHtml: true,
+    value: quotationStatusBadge.value
+  },
+  {
+    icon: Calendar,
+    label: 'Fecha de creación',
+    value: formatDate(props.quotation?.createdAt ?? '')
+  },
+  ...(props.quotation?.status === 'PENDIENTE_PAGO' || props.quotation?.status === 'PAGADO'
+    ? [{
+      icon: Calendar,
+      label: 'Fecha de actualización de datos',
+      value: formatDate(props.quotation.statusToPendingPagoAt)
+    }]
+    : []),
+  ...(props.quotation?.status === 'RECHAZADO'
+    ? [{
+      icon: Calendar,
+      label: 'Fecha de rechazo',
+      value: formatDate(props.quotation.statusToRechazadoAt)
+    }]
+    : []),
+  ...(props.quotation?.status === 'PAGADO'
+    ? [{
+      icon: Calendar,
+      label: 'Fecha de pago',
+      value: formatDate(props.quotation.statusToPagadoAt)
+    }]
+    : [])
+])
+
+
 const calculateDays = (start: string | Date, end: string | Date): number => {
   const d1 = new Date(start)
   const d2 = new Date(end)
   const diffTime = Math.abs(d2.getTime() - d1.getTime())
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 }
+
+const quotationStatusBadge = computed(() => {
+  const status = props.quotation?.status as QuotationStatus | undefined
+  if (!status) return ''
+  const label = getQuotationStatusLabel(status)
+  const cls = getQuotationStatusBadgeClass(status)
+  return `<span class="inline-block px-2 py-1 rounded-full text-xs font-semibold ${cls}">${label}</span>`
+})
+
 </script>

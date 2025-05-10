@@ -38,7 +38,7 @@ export interface ActivePlatform {
   price: number;
 }
 
-enum QuotationStatus {
+export enum QuotationStatus {
   PENDIENTE_DATOS = "PENDIENTE_DATOS",
   PENDIENTE_PAGO = "PENDIENTE_PAGO",
   PAGADO = "PAGADO",

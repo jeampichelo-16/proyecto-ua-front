@@ -7,7 +7,7 @@
           <h2 class="text-xl font-semibold text-gray-800">Detalles de la Plataforma</h2>
           <p class="text-sm text-gray-500">Información completa del registro seleccionado.</p>
         </div>
-        <button v-if="!isEditing" @click="toggleEdit"
+        <button v-if="!isEditing" @click="enableEdit"
           class="bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-4 py-1.5 rounded shadow-sm">
           Editar
         </button>
@@ -16,35 +16,19 @@
       <!-- Vista de detalles -->
       <template v-if="!isEditing">
         <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm text-gray-700">
-          <div>
-            <dt class="font-medium text-gray-500">Serial</dt>
-            <dd class="text-gray-900">{{ machine?.serial }}</dd>
-          </div>
-          <div>
-            <dt class="font-medium text-gray-500">Marca</dt>
-            <dd class="text-gray-900">{{ machine?.brand }}</dd>
-          </div>
-          <div>
-            <dt class="font-medium text-gray-500">Modelo</dt>
-            <dd class="text-gray-900">{{ machine?.model }}</dd>
-          </div>
-          <div>
-            <dt class="font-medium text-gray-500">Tipo de Plataforma</dt>
-            <dd class="text-gray-900">{{ machine?.typePlatform }}</dd>
-          </div>
-          <div>
-            <dt class="font-medium text-gray-500">Precio</dt>
-            <dd class="text-gray-900">S/ {{ machine?.price }}</dd>
-          </div>
-          <div>
-            <dt class="font-medium text-gray-500">Estado</dt>
-            <dd v-html="statusBadge" />
-          </div>
-          <div class="sm:col-span-2">
-            <dt class="font-medium text-gray-500">Descripción</dt>
-            <dd class="text-gray-900 whitespace-pre-line">{{ machine?.description }}</dd>
-          </div>
+          <template v-for="(field, index) in platformFields" :key="index">
+            <div :class="index">
+              <div :class="field.fullSpan ? 'sm:col-span-2' : ''">
+                <dt class="font-medium text-gray-500">{{ field.label }}</dt>
+                <dd v-if="field.isHtml" class="text-gray-900" v-html="field.value" />
+                <dd v-else class="text-gray-900 whitespace-pre-line">
+                  {{ field.value }}
+                </dd>
+              </div>
+            </div>
+          </template>
         </dl>
+
 
         <!-- Certificados -->
         <div class="space-y-3 pt-4 border-t">
@@ -75,7 +59,7 @@
       </template>
 
       <!-- Edición -->
-      <PlatformEditSection v-else :machine="machine" @updated="handleUpdated" @cancel="toggleEdit"
+      <PlatformEditSection v-else :machine="machine" @updated="handleUpdated" @cancel="cancelEdit"
         @submitting="isSubmitting = $event" />
     </div>
   </BaseModal>
@@ -90,6 +74,21 @@ import type { Machine, MachineStatus } from '../../../types/platform';
 import { getMachineStatusBadgeClass, getMachineStatusLabel } from '../../../utils/machineStatusUtils';
 import BaseModal from '../../../components/BaseModal.vue'
 
+const platformFields = computed(() => [
+  { label: 'Serial', value: props.machine?.serial },
+  { label: 'Marca', value: props.machine?.brand },
+  { label: 'Modelo', value: props.machine?.model },
+  { label: 'Tipo de Plataforma', value: props.machine?.typePlatform },
+  { label: 'Precio', value: props.machine ? `S/ ${props.machine.price}` : null },
+  { label: 'Estado', isHtml: true, value: statusBadge.value },
+  {
+    label: 'Descripción',
+    value: props.machine?.description,
+    fullSpan: true,
+  },
+])
+
+
 const props = defineProps<{
   isOpen: boolean
   machine: Machine | null
@@ -100,8 +99,12 @@ const emit = defineEmits(['close', 'updated'])
 const isEditing = ref(false)
 const isSubmitting = ref(false)
 
-function toggleEdit() {
-  isEditing.value = !isEditing.value
+function enableEdit() {
+  isEditing.value = true
+}
+
+function cancelEdit() {
+  isEditing.value = false
 }
 
 function handleUpdated() {
@@ -112,7 +115,6 @@ function handleUpdated() {
 watch(() => props.isOpen, (open) => {
   if (!open) {
     isEditing.value = false
-    isSubmitting.value = false
   }
 })
 
@@ -122,4 +124,5 @@ const statusBadge = computed(() => {
   const cls = getMachineStatusBadgeClass(props.machine.status as MachineStatus)
   return `<span class='inline-block px-2 py-1 rounded-full text-xs font-semibold ${cls}'>${label}</span>`
 })
+
 </script>

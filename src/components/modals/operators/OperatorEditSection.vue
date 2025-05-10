@@ -30,20 +30,16 @@
       <!-- Costo de Servicio -->
       <div class="sm:col-span-2">
         <label class="block mb-1 font-medium text-gray-600">Costo de Servicio (S/)</label>
-        <input type="number" step="0.01" min="0" v-model.number="form.costService" :disabled="isSubmitting" :class="inputClass" />
+        <input type="number" step="0.01" min="0" v-model.number="form.costService" :disabled="isSubmitting"
+          :class="inputClass" />
       </div>
 
       <!-- Certificado de Operatividad -->
       <div>
         <label class="block mb-1 font-medium text-gray-600">Cert. Operatividad (PDF)</label>
-        <input
-          type="file"
-          ref="operativityInput"
-          accept="application/pdf"
-          @change="onFileChange('operativityCertificatePath', $event)"
-          :disabled="isSubmitting"
-          :class="fileInputClass"
-        />
+        <input type="file" ref="operativityInput" accept="application/pdf"
+          @change="onFileChange('operativityCertificatePath', $event)" :disabled="isSubmitting"
+          :class="fileInputClass" />
         <p class="text-xs text-gray-500 mt-1">Solo PDF. Máx 2MB.</p>
 
         <div class="text-xs mt-1 flex items-center gap-2 flex-wrap">
@@ -63,14 +59,8 @@
       <!-- Examen Médico -->
       <div>
         <label class="block mb-1 font-medium text-gray-600">Examen Médico (EMO PDF)</label>
-        <input
-          type="file"
-          ref="emoInput"
-          accept="application/pdf"
-          @change="onFileChange('emoPDFPath', $event)"
-          :disabled="isSubmitting"
-          :class="fileInputClass"
-        />
+        <input type="file" ref="emoInput" accept="application/pdf" @change="onFileChange('emoPDFPath', $event)"
+          :disabled="isSubmitting" :class="fileInputClass" />
         <p class="text-xs text-gray-500 mt-1">Solo PDF. Máx 2MB.</p>
 
         <div class="text-xs mt-1 flex items-center gap-2 flex-wrap">
@@ -81,8 +71,8 @@
               @click="clearFile('emoPDFPath')">Quitar</button>
           </template>
           <template v-else-if="props.operator?.emoPDFPath">
-            <button type="button" class="text-blue-600 underline"
-              @click="openFile(props.operator.emoPDFPath)">Ver archivo actual</button>
+            <button type="button" class="text-blue-600 underline" @click="openFile(props.operator.emoPDFPath)">Ver
+              archivo actual</button>
           </template>
         </div>
       </div>
@@ -116,7 +106,7 @@ import { updateOperatorById } from '../../../services/admin.service'
 import { notifySuccess, notifyError } from '../../../utils/notify'
 
 const props = defineProps<{ operator: Operator | null }>()
-const emit = defineEmits(['updated', 'cancel'])
+const emit = defineEmits(['updated', 'cancel', 'submitting'])
 
 const isSubmitting = ref(false)
 const operatorId = ref<number | null>(null)
@@ -185,6 +175,7 @@ function clearFile(field: 'emoPDFPath' | 'operativityCertificatePath') {
 function openFile(url: string) {
   window.open(url, '_blank')
 }
+
 function openBlobPreview(type: 'emo' | 'operativity') {
   const url = filePreviewUrl.value[type]
   if (url) window.open(url, '_blank')
@@ -209,6 +200,7 @@ async function submitEdit() {
   }
 
   isSubmitting.value = true
+  emit('submitting', true)
   try {
     const formData = buildUpdatedFormData(form.value, original.value)
     await updateOperatorById(operatorId.value, formData)
@@ -218,6 +210,7 @@ async function submitEdit() {
     notifyError({ title: 'Error al actualizar', description: 'Revisa los datos e intenta nuevamente.' })
   } finally {
     isSubmitting.value = false
+    emit('submitting', false)
   }
 }
 

@@ -5,10 +5,8 @@
       <template #header>
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
           <h1 class="text-2xl font-bold text-gray-800">Gestión de Cotizaciones</h1>
-          <button
-            @click="isCreateModalOpen = true"
-            class="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition"
-          >
+          <button @click="isCreateModalOpen = true"
+            class="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition">
             <PlusCircle class="w-4 h-4" />
             Generar Cotización
           </button>
@@ -26,16 +24,7 @@
           <td class="px-6 py-3">{{ q.days }} días</td>
           <td class="px-6 py-3">S/ {{ q.total.toFixed(2) }}</td>
           <td class="px-6 py-3">
-            <span :class="[
-              'inline-block px-2 py-0.5 text-xs font-semibold rounded-full',
-              q.status === 'APROBADO' ? 'bg-green-100 text-green-700'
-                : q.status === 'RECHAZADO' ? 'bg-red-100 text-red-700'
-                : q.status === 'PAGADO' ? 'bg-emerald-100 text-emerald-700'
-                : q.status === 'PENDIENTE_DATOS' ? 'bg-gray-100 text-gray-700'
-                : 'bg-yellow-100 text-yellow-700'
-            ]">
-              {{ q.status }}
-            </span>
+            <span v-html="getStatusBadge(q.status)"></span>
           </td>
           <td class="px-6 py-3 text-sm text-gray-500">{{ formatDate(q.createdAt) }}</td>
           <td class="px-6 py-3 text-xs text-gray-700">
@@ -54,8 +43,7 @@
                 <DollarSign class="w-4 h-4" /> Pagar
               </button>
 
-              <button v-if="q.status !== 'PAGADO' && q.status !== 'RECHAZADO'"
-                @click="confirmCancellation(q.id)"
+              <button v-if="q.status !== 'PAGADO' && q.status !== 'RECHAZADO'" @click="confirmCancellation(q.id)"
                 class="flex items-center gap-1 text-red-600 hover:underline">
                 <XCircle class="w-4 h-4" /> Cancelar
               </button>
@@ -66,48 +54,26 @@
 
       <!-- Paginación -->
       <template #pagination>
-        <BasePagination
-          :currentPage="currentPage"
-          :totalPages="totalPages"
-          :hasNextPage="quotations.length === pageSize"
-          @update:page="currentPage = $event"
-        />
+        <BasePagination :currentPage="currentPage" :totalPages="totalPages"
+          :hasNextPage="quotations.length === pageSize" @update:page="currentPage = $event" />
       </template>
     </BaseDataTable>
 
     <!-- Modales -->
-    <QuotationCreateModal
-      v-model:isOpen="isCreateModalOpen"
-      :clients="activeClients"
-      :platforms="activePlatforms"
-      @created="fetchQuotations"
-      @cancel="isCreateModalOpen = false"
-    />
+    <QuotationCreateModal v-model:isOpen="isCreateModalOpen" :clients="activeClients" :platforms="activePlatforms"
+      @created="fetchQuotations" @cancel="isCreateModalOpen = false" />
 
     <QuotationDetailModal :isOpen="isModalOpen" :quotation="selectedQuotation" @close="isModalOpen = false" />
 
-    <QuotationApproveModal
-      :isOpen="isApproveModalOpen"
-      :quotation="selectedQuotation"
-      :availableOperators="availableOperators"
-      :isApproving="isApproving"
-      @cancel="isApproveModalOpen = false"
-      @submit="handleApproval"
-    />
+    <QuotationApproveModal :isOpen="isApproveModalOpen" :quotation="selectedQuotation"
+      :availableOperators="availableOperators" :isApproving="isApproving" @cancel="isApproveModalOpen = false"
+      @submit="handleApproval" />
 
-    <QuotationCancelModal
-      :isOpen="isCancelConfirmOpen"
-      :isCancelling="isCancelling"
-      @cancel="isCancelConfirmOpen = false"
-      @submit="submitCancellation"
-    />
+    <QuotationCancelModal :isOpen="isCancelConfirmOpen" :isCancelling="isCancelling"
+      @cancel="isCancelConfirmOpen = false" @submit="submitCancellation" />
 
-    <QuotationPayModal
-      :isOpen="isPayModalOpen"
-      :quotationId="payQuotationId"
-      @close="isPayModalOpen = false"
-      @paid="onPaidSuccessfully"
-    />
+    <QuotationPayModal :isOpen="isPayModalOpen" :quotationId="payQuotationId" @close="isPayModalOpen = false"
+      @paid="onPaidSuccessfully" />
   </div>
 </template>
 
@@ -135,6 +101,7 @@ import QuotationCancelModal from '../../components/modals/quotation/QuotationCan
 import QuotationPayModal from '../../components/modals/quotation/QuotationPayModal.vue'
 
 import type { Quotation, QuotationDetail } from '../../types/quotation'
+import { getQuotationStatusBadgeClass, getQuotationStatusLabel } from '../../utils/quotationStatusUtils'
 
 const quotations = ref<Quotation[]>([])
 const selectedQuotation = ref<QuotationDetail | null>(null)
@@ -281,6 +248,13 @@ function handleApproval(payload: { deliveryAmount: number; operatorId: number | 
 function confirmCancellation(id: number) {
   cancelQuotationId.value = id
   isCancelConfirmOpen.value = true
+}
+
+
+function getStatusBadge(status: string): string {
+  const label = getQuotationStatusLabel(status as any)
+  const cls = getQuotationStatusBadgeClass(status as any)
+  return `<span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${cls}">${label}</span>`
 }
 
 watch([currentPage, selectedStatus], fetchQuotations)
