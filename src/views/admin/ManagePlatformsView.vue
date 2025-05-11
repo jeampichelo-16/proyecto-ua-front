@@ -45,11 +45,6 @@
                                 class="flex items-center gap-1 text-blue-600 hover:underline text-xs">
                                 <Eye class="w-4 h-4" /> Ver
                             </button>
-
-                            <button @click="requestDeleteMachine(machine)"
-                                class="flex items-center gap-1 text-red-600 hover:underline text-xs">
-                                <Trash2 class="w-4 h-4" /> Eliminar
-                            </button>
                         </div>
                     </td>
                 </tr>
@@ -65,8 +60,8 @@
         <!-- Modal de Detalles -->
         <PlatformDetailsModal :isOpen="isModalOpen" :machine="selectedMachine" @close="isModalOpen = false"
             @updated="handleMachineUpdated" />
-        <PlatformDeleteModal :isOpen="isDeleteModalOpen" :isDeleting="isDeleting" :machine="machineToDelete"
-            @close="isDeleteModalOpen = false" @confirm="confirmDeleteMachine" />
+        <!--<PlatformDeleteModal :isOpen="isDeleteModalOpen" :isDeleting="isDeleting" :machine="machineToDelete"
+            @close="isDeleteModalOpen = false" @confirm="confirmDeleteMachine" />-->
         <PlatformCreateModal :isOpen="isCreateModalOpen" @close="isCreateModalOpen = false" @created="fetchMachines" />
     </div>
 </template>
@@ -77,13 +72,10 @@ import { getPaginatedMachines, getMachineBySerial } from '../../services/user.se
 import type { Machine } from '../../types/platform'
 import BaseDataTable from '../../components/BaseDataTable.vue'
 import BasePagination from '../../components/BasePagination.vue'
-import { PlusCircle, Trash2, Eye } from 'lucide-vue-next'
+import { PlusCircle, Eye } from 'lucide-vue-next'
 import { getMachineStatusBadgeClass, getMachineStatusLabel } from '../../utils/machineStatusUtils'
 import PlatformCreateModal from '../../components/modals/platform/PlatformCreateModal.vue'
 import PlatformDetailsModal from '../../components/modals/platform/PlatformDetailsModal.vue'
-import PlatformDeleteModal from '../../components/modals/platform/PlatformDeleteModal.vue'
-import { notifyError, notifySuccess } from '../../utils/notify'
-import { deletePlatformBySerial } from '../../services/admin.service'
 
 // State
 const machines = ref<Machine[]>([])
@@ -94,9 +86,6 @@ const searchQuery = ref('')
 const isModalOpen = ref(false)
 const selectedMachine = ref<Machine | null>(null)
 const isCreateModalOpen = ref(false)
-const machineToDelete = ref<Machine | null>(null)
-const isDeleteModalOpen = ref(false)
-const isDeleting = ref(false)
 
 // Columns
 const columns = [
@@ -141,10 +130,12 @@ async function viewMachine(serial: string) {
     }
 }
 
+/*
 function requestDeleteMachine(machine: Machine) {
     machineToDelete.value = machine
     isDeleteModalOpen.value = true
 }
+
 
 async function confirmDeleteMachine() {
     if (!machineToDelete.value) return
@@ -161,6 +152,7 @@ async function confirmDeleteMachine() {
         isDeleting.value = false
     }
 }
+*/
 
 async function handleMachineUpdated() {
     isModalOpen.value = false

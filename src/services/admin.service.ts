@@ -64,6 +64,7 @@ export async function getOperatorById(idOperator: number): Promise<Operator> {
   }
 }
 
+/*
 export async function deleteOperatorById(id: number) {
   try {
     const res = await api.delete(`/admin/operators/${id}`);
@@ -73,6 +74,7 @@ export async function deleteOperatorById(id: number) {
     throw new Error(message);
   }
 }
+*/
 
 export async function createOperator(formData: FormData) {
   try {
@@ -149,6 +151,7 @@ export async function createPlatform(formData: FormData): Promise<Machine> {
   }
 }
 
+/*
 export async function deletePlatformBySerial(serial: string): Promise<void> {
   try {
     await api.delete(`/admin/machines/${serial}`);
@@ -157,6 +160,7 @@ export async function deletePlatformBySerial(serial: string): Promise<void> {
     throw new Error(message);
   }
 }
+*/
 
 export async function updatePlatformBySerial(
   serial: string,

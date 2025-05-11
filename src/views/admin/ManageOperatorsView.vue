@@ -43,10 +43,6 @@
               <button @click="viewOperator(op)" class="flex items-center gap-1 text-blue-600 hover:underline text-xs">
                 <Eye class="w-4 h-4" /> Ver
               </button>
-              <button @click="requestDeleteOperator(op)"
-                class="flex items-center gap-1 text-red-600 hover:underline text-xs">
-                <Trash2 class="w-4 h-4" /> Eliminar
-              </button>
             </div>
           </td>
         </tr>
@@ -63,8 +59,8 @@
     <OperatorDetailModal :isOpen="isModalOpen" :operator="selectedOperator" @close="isModalOpen = false"
       @updated="fetchOperators" />
 
-    <OperatorDeleteModal :isOpen="isDeleteModalOpen" :operator="operatorToDelete" :isDeleting="isDeleting"
-      @close="isDeleteModalOpen = false" @confirm="confirmDeleteOperator" />
+    <!--<OperatorDeleteModal :isOpen="isDeleteModalOpen" :operator="operatorToDelete" :isDeleting="isDeleting"
+      @close="isDeleteModalOpen = false" @confirm="confirmDeleteOperator" />-->
 
     <OperatorCreateModal :isOpen="isCreateModalOpen" @close="isCreateModalOpen = false" @created="fetchOperators" />
   </div>
@@ -74,21 +70,17 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import type { Operator } from '../../types/operator'
 import {
-  deleteOperatorById,
   getOperatorById,
   getPaginatedOperators
 } from '../../services/admin.service'
-
-import { notifyError, notifySuccess } from '../../utils/notify'
 
 import BaseDataTable from '../../components/BaseDataTable.vue'
 import BasePagination from '../../components/BasePagination.vue'
 
 import OperatorDetailModal from '../../components/modals/operators/OperatorDetailModal.vue'
-import OperatorDeleteModal from '../../components/modals/operators/OperatorDeleteModal.vue'
 import OperatorCreateModal from '../../components/modals/operators/OperatorCreateModal.vue'
 
-import { Eye, PlusCircle, Trash2 } from 'lucide-vue-next'
+import { Eye, PlusCircle } from 'lucide-vue-next'
 import { getOperatorStatusBadgeClass, getOperatorStatusLabel } from '../../utils/operatorStatusUtils'
 
 const operators = ref<Operator[]>([])
@@ -98,12 +90,9 @@ const pageSize = ref(10)
 const searchQuery = ref('')
 
 const selectedOperator = ref<Operator | null>(null)
-const operatorToDelete = ref<Operator | null>(null)
 
 const isModalOpen = ref(false)
-const isDeleteModalOpen = ref(false)
 const isCreateModalOpen = ref(false)
-const isDeleting = ref(false)
 
 const columns = [
   { label: 'Nombre completo', key: 'name' },
@@ -146,6 +135,7 @@ async function viewOperator(op: Operator) {
   }
 }
 
+/*
 async function confirmDeleteOperator() {
   if (!operatorToDelete.value) return
   isDeleting.value = true
@@ -162,10 +152,12 @@ async function confirmDeleteOperator() {
   }
 }
 
+
 function requestDeleteOperator(operator: Operator) {
   operatorToDelete.value = operator
   isDeleteModalOpen.value = true
 }
+*/
 
 watch(currentPage, fetchOperators)
 onMounted(fetchOperators)

@@ -1,63 +1,64 @@
 <template>
-  <BaseModal :modelValue="isOpen" @update:modelValue="emit('close')" :hideCloseButton="isSubmitting">
-    <div class="space-y-4">
-      <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
-        <DollarSign class="w-5 h-5 text-emerald-500" />
-        Marcar como Pagada
-      </h2>
+<BaseModal :modelValue="isOpen" @update:modelValue="emit('close')" :hideCloseButton="isSubmitting">
+  <div class="space-y-6 p-1">
+    <!-- Título -->
+    <h2 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
+      <DollarSign class="w-5 h-5 text-emerald-500" />
+      Marcar como Pagada
+    </h2>
 
-      <p class="text-sm text-gray-600">Adjunta el comprobante de pago correspondiente para esta cotización.</p>
+    <p class="text-sm text-gray-600 leading-relaxed">
+      Adjunta el comprobante de pago correspondiente para esta cotización.
+    </p>
 
-      <!-- Input de archivo -->
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Comprobante de pago (PDF)</label>
-        <input
-          type="file"
-          accept="application/pdf"
-          ref="fileInput"
-          @change="handleFileChange"
-          :disabled="isSubmitting"
-          :class="inputClass"
-        />
+    <!-- Input -->
+    <div class="space-y-2">
+      <label class="block text-sm font-medium text-gray-700">Comprobante de pago (PDF)</label>
 
-        <!-- Vista previa y control -->
-        <div v-if="file" class="text-xs mt-2 flex items-center justify-between gap-2 flex-wrap">
-          <span class="truncate">{{ file.name }}</span>
-          <div class="flex gap-2">
-            <button type="button" @click="previewPDF" class="text-blue-600 hover:underline" :disabled="isSubmitting">
-              Ver
-            </button>
-            <button type="button" @click="clearFile" class="text-red-600 hover:underline" :disabled="isSubmitting">
-              Quitar
-            </button>
-          </div>
+      <input
+        type="file"
+        accept="application/pdf"
+        ref="fileInput"
+        @change="handleFileChange"
+        :disabled="isSubmitting"
+        :class="fileInputClass"
+      />
+
+      <div v-if="file" class="text-xs text-gray-600 mt-1 flex items-center justify-between gap-2 flex-wrap">
+        <span class="truncate">{{ file.name }}</span>
+        <div class="flex gap-3">
+          <button @click="previewPDF" type="button" class="text-blue-600 hover:underline" :disabled="isSubmitting">Ver</button>
+          <button v-if="!isSubmitting" @click="clearFile" type="button" class="text-red-600 hover:underline" :disabled="isSubmitting">Quitar</button>
         </div>
       </div>
 
-      <p class="text-xs text-gray-500 border-t pt-2 italic">Solo archivos PDF. Máx. 2MB</p>
-
-      <!-- Footer -->
-      <div class="pt-4 flex justify-end gap-2">
-        <button
-          type="button"
-          class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm rounded"
-          @click="emit('close')"
-          :disabled="isSubmitting"
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="button"
-          class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm rounded disabled:opacity-50"
-          @click="submit"
-          :disabled="isSubmitting"
-        >
-          {{ isSubmitting ? 'Enviando...' : 'Confirmar Pago' }}
-        </button>
-      </div>
+      <p class="text-xs text-gray-500 italic border-t pt-2 mt-4">
+        Solo archivos PDF. Tamaño máximo: 2MB
+      </p>
     </div>
-  </BaseModal>
+
+    <!-- Footer -->
+    <div class="pt-4 flex justify-end gap-2 mt-6">
+      <button
+        type="button"
+        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-sm rounded"
+        @click="emit('close')"
+        :disabled="isSubmitting"
+      >
+        Cancelar
+      </button>
+
+      <button
+        type="button"
+        class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm rounded disabled:opacity-50"
+        @click="submit"
+        :disabled="isSubmitting"
+      >
+        {{ isSubmitting ? 'Enviando...' : 'Confirmar Pago' }}
+      </button>
+    </div>
+  </div>
+</BaseModal>
 </template>
 
 <script setup lang="ts">
@@ -155,6 +156,13 @@ async function submit() {
 }
 
 // Estilos
-const inputClass =
-  'block w-full text-sm border rounded text-gray-600 bg-white border-gray-300 file:mr-2 file:rounded file:border-0 file:bg-emerald-50 file:text-emerald-700 file:px-3 file:py-1 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-400 disabled:file:bg-gray-200 disabled:file:text-gray-400 disabled:file:cursor-not-allowed'
+const fileInputClass = [
+  'block w-full text-sm border rounded',
+  'file:rounded file:border-0 file:mr-2 file:px-3 file:py-1',
+  'disabled:cursor-not-allowed',
+  'file:bg-yellow-50 file:text-yellow-700 file:cursor-pointer',
+  'bg-white text-gray-600',
+  'disabled:bg-gray-100 disabled:text-gray-400 disabled:file:bg-gray-200 disabled:file:text-gray-400 disabled:file:cursor-not-allowed'
+].join(' ')
+
 </script>

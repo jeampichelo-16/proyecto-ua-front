@@ -50,7 +50,7 @@
               <span class="truncate block">{{ form.operativityCertificatePath.name }}</span>
               <div class="flex gap-2 mt-1">
                 <button v-if="filePreviewUrl.operativity" type="button" @click="previewFile(filePreviewUrl.operativity)" class="text-blue-600 hover:underline">Ver</button>
-                <button type="button" @click="clearFile('operativityCertificatePath')" class="text-red-600 hover:underline" :disabled="isSubmitting">Quitar</button>
+                <button v-if="!isSubmitting" type="button" @click="clearFile('operativityCertificatePath')" class="text-red-600 hover:underline" :disabled="isSubmitting">Quitar</button>
               </div>
             </div>
           </div>
@@ -70,7 +70,7 @@
               <span class="truncate block">{{ form.emoPDFPath.name }}</span>
               <div class="flex gap-2 mt-1">
                 <button v-if="filePreviewUrl.emo" type="button" @click="previewFile(filePreviewUrl.emo)" class="text-blue-600 hover:underline">Ver</button>
-                <button type="button" @click="clearFile('emoPDFPath')" class="text-red-600 hover:underline" :disabled="isSubmitting">Quitar</button>
+                <button v-if="!isSubmitting" type="button" @click="clearFile('emoPDFPath')" class="text-red-600 hover:underline" :disabled="isSubmitting">Quitar</button>
               </div>
             </div>
           </div>
