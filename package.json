@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "build": "npm run type-check && npm run vite-prod",
+    "type-check": "vue-tsc -b",
+    "vite-prod": "vite build --mode production",
     "preview": "vite preview"
   },
   "dependencies": {
