@@ -187,6 +187,8 @@ router.beforeEach(async (to, _from, next) => {
     } else {
       startTokenAutoRefresh();
       await profile.fetchUser();
+      console.log('Rol detectado:', profile.role);
+
     }
   }
 
