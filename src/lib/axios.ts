@@ -6,6 +6,4 @@ const api = axios.create({
   withCredentials: true,
 });
 
-console.log("Modo:", import.meta.env.VITE_STAGE);
-
 export default api;
