@@ -5,7 +5,7 @@
       <div
         class="absolute top-3 right-4 bg-yellow-100 text-yellow-800 text-xs px-3 py-1 rounded-full font-semibold shadow-sm"
       >
-        Promedio: {{ averageValue }}{{ suffix }}
+        Promedio mensual: {{ averageValue }}{{ suffix }}
       </div>
     </div>
   </template>
@@ -59,7 +59,7 @@
   
   // Sufijo dinámico
   const suffix = computed(() => {
-    return props.title.includes('Tasa') ? '%' : props.title.includes('Respuesta') ? ' horas' : ''
+    return props.title.includes('Tasa') ? '%' : props.title.includes('Respuesta') ? ' minutos' : ''
   })
   
   const chartOptions = {

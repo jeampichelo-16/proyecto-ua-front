@@ -1,9 +1,9 @@
 <template>
-  <div class="h-screen overflow-y flex">
+  <div class="flex min-h-screen">
     <Sidebar :links="employeeSidebarLinks" class="bg-[#fff4cc] text-black" />
-    <main class="flex-1 bg-[#fafafa] p-6">
-      <RouterView />
-    </main>
+    <main class="flex-1 bg-[#fafafa] p-6 pt-16 md:pt-0 overflow-y-auto max-h-screen">
+  <RouterView />
+</main>
   </div>
 </template>
 

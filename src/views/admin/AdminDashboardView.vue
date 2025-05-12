@@ -1,71 +1,73 @@
 <template>
-  <div class="p-6 space-y-6">
-    <h1 class="text-2xl font-bold text-gray-800">Panel Administrativo</h1>
-    <p class="text-gray-600">Vista exclusiva para administradores.</p>
+  <div class="p-6 space-y-8">
+    <header class="mb-4">
+      <h1 class="text-3xl font-bold text-gray-800">Panel Administrativo</h1>
+      <p class="text-gray-500 text-sm">Vista exclusiva para administradores del sistema.</p>
+    </header>
 
-    <!-- Tarjetas principales -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      <CardDashboard title="Clientes" :value="dashboard?.totalClients ?? 0" />
-      <CardDashboard title="Cotizaciones" :value="dashboard?.totalQuotations ?? 0" />
-      <CardDashboard title="Operadores Activos" :value="dashboard?.activeOperators ?? 0" />
-    </div>
+    <!-- Métricas globales -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <CardDashboard title="Monto Total Pagado (S/)" :value="totalPaid" />
+      <CardDashboard title="Tasa Promedio Cotizaciones (%)" :value="averageRate" />
+      <CardDashboard title="Tiempo Promedio Respuesta (min)" :value="averageResponseTime" />
+    </section>
 
-    <!-- Métricas adicionales -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      <CardDashboard title="Tasa Promedio Cotizaciones (%)" :value="dashboard?.quotationRateAvg ?? 0" />
-      <CardDashboard title="Tasa de Conversión (%)" :value="dashboard?.quotationConversionRate ?? 0" />
-      <CardDashboard title="Tiempo Promedio Respuesta (hrs)" :value="averageResponseTime" />
-    </div>
+    <!-- Gráficos de líneas -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-700 mb-2">Rendimiento Histórico</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <ChartLine title="Tasa de Cotizaciones Pagadas (%)" :data="quotationRateChart" label="rate"
+          averageLabel="Promedio: {{ averageRate.toFixed(1) }}%" />
+        <ChartLine title="Promedio Tiempo de Respuesta (min)" :data="responseTimeChart" label="responseMinutes"
+          averageLabel="Promedio: {{ averageResponseTime.toFixed(1) }} min" />
+      </div>
+    </section>
 
-    <!-- Gráficos -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <ChartLine title="Tasa de Cotizaciones Procesadas (%)" :data="quotationRateChart" label="rate"
-        averageLabel="Promedio: {{ averageRate }}%" />
-      <ChartLine title="Promedio Tiempo de Respuesta (hrs)" :data="responseTimeChart" label="responseHours"
-        averageLabel="Promedio: {{ averageResponseTime }} horas" />
-    </div>
+    <!-- Distribuciones actuales -->
+    <section>
+      <h2 class="text-lg font-semibold text-gray-700 mb-2">Distribución Actual de Estados</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <ChartPie title="Estado de Plataformas" :data="dashboard?.platformStatusDistribution.data ?? []" />
+        <ChartPie title="Estado de Operarios" :data="dashboard?.operatorStatusDistribution.data ?? []" />
+        <ChartPie title="Estado de Cotizaciones" :data="dashboard?.quotationStatusDistribution.data ?? []" />
+      </div>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import type {
-  AdminDashboardData,
-  QuotationRatePoint,
-  ResponseTimePoint
-} from '../../types/dashboard'
-import { getAdminDashboard } from '../../services/admin.service'
-
+import type { AdminDashboardData, TimeSeriesPoint } from '../../types/dashboard';
+import { getAdminDashboard } from '../../services/admin.service';
 import CardDashboard from '../../components/CardDashboard.vue'
 import ChartLine from '../../components/ChartLine.vue'
+import ChartPie from '../../components/ChartPie.vue'
 
 const dashboard = ref<AdminDashboardData | null>(null)
 
 const quotationRateChart = ref<Array<{ fecha: string; rate: number }>>([])
-const responseTimeChart = ref<Array<{ fecha: string; responseHours: number }>>([])
+const responseTimeChart = ref<Array<{ fecha: string; responseMinutes: number }>>([])
 
-const averageResponseTime = computed(() =>
-  parseFloat((dashboard.value?.avgResponseTimeInHours ?? 0).toFixed(2))
-)
+const averageRate = computed(() => dashboard.value?.averageProcessedRate.value ?? 0)
+const averageResponseTime = computed(() => dashboard.value?.averageResponseTime.value ?? 0)
+const totalPaid = computed(() => dashboard.value?.totalPaidAmount.value ?? 0)
 
 onMounted(async () => {
   try {
     const data = await getAdminDashboard()
     dashboard.value = data
 
-    // 🔁 Asegúrate que el campo sea `fecha`, no `date`
-    quotationRateChart.value = data.quotationRateSeries.map((item: QuotationRatePoint) => ({
-      fecha: item.date,
-      rate: item.rate
+    quotationRateChart.value = data.processedRateSeries.map((item: TimeSeriesPoint) => ({
+      fecha: item.label,
+      rate: item.value
     }))
 
-    responseTimeChart.value = data.responseTimeSeries.map((item: ResponseTimePoint) => ({
-      fecha: item.date,
-      responseHours: item.responseHours
+    responseTimeChart.value = data.responseTimeSeries.map((item: TimeSeriesPoint) => ({
+      fecha: item.label,
+      responseMinutes: item.value
     }))
   } catch (error) {
     console.error('Error al cargar dashboard:', error)
   }
 })
 </script>
-
