@@ -24,7 +24,7 @@ export const UserRoutes = {
 
 // 📂 Rutas del panel de empleados
 export const EmployeeRoutes = {
-  REPORTS: "/empleado/reportes", // CRUD de clientes
+  //REPORTS: "/empleado/reportes", // CRUD de clientes
 } as const;
 
 // 📂 Rutas de error

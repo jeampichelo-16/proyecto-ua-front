@@ -1,6 +1,6 @@
 // src/router/sidebarLinks.ts
 
-import { AdminRoutes, UserRoutes, EmployeeRoutes } from "./routeNames";
+import { AdminRoutes, UserRoutes } from "./routeNames";
 import type { Role } from "../types/user"; // Asumiendo que tu Role está en types/user.ts
 import {
   Home,
@@ -34,7 +34,6 @@ export const adminSidebarLinks: SidebarLink[] = [
 ];
 
 export const employeeSidebarLinks: SidebarLink[] = [
-  { label: "Reportes", to: EmployeeRoutes.REPORTS, icon: Box },
   {
     label: "Gestionar Clientes",
     to: UserRoutes.MANAGE_CLIENTS,

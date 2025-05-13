@@ -6,7 +6,6 @@ import { Role } from "../types/user";
 
 import {
   AuthRoutes,
-  EmployeeRoutes,
   AdminRoutes,
   ErrorRoutes,
   UserRoutes,
@@ -119,7 +118,7 @@ const routes = [
 
   // 📂 Empleado - Reportes
   {
-    path: EmployeeRoutes.REPORTS,
+    path: UserRoutes.MANAGE_CLIENTS,
     component: BaseLayout,
     meta: { requiresAuth: true, role: [Role.ADMIN, Role.EMPLEADO] },
     children: [
@@ -202,13 +201,13 @@ router.beforeEach(async (to, _from, next) => {
 
   if (isLoginRoute && auth.isAuthenticated) {
     if (profile.role === Role.ADMIN) return next(AdminRoutes.DASHBOARD);
-    if (profile.role === Role.EMPLEADO) return next(EmployeeRoutes.REPORTS);
+    if (profile.role === Role.EMPLEADO) return next(UserRoutes.MANAGE_CLIENTS);
     return next(ErrorRoutes.FORBIDDEN);
   }
 
   if (to.meta.guestOnly && auth.isAuthenticated) {
     if (profile.role === Role.ADMIN) return next(AdminRoutes.DASHBOARD);
-    if (profile.role === Role.EMPLEADO) return next(EmployeeRoutes.REPORTS);
+    if (profile.role === Role.EMPLEADO) return next(UserRoutes.MANAGE_CLIENTS);
     return next(ErrorRoutes.FORBIDDEN);
   }
 

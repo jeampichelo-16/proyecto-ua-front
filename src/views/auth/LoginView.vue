@@ -68,7 +68,7 @@ import { useAuthStore } from '../../stores/authStore'
 import { useProfileStore } from '../../stores/profileStore'
 import { Role } from '../../types/user'
 import { useSessionFlags } from '../../composables/useSessionFlags'
-import { AuthRoutes, AdminRoutes, EmployeeRoutes, ErrorRoutes } from '../../router/routeNames'
+import { AuthRoutes, AdminRoutes, UserRoutes, ErrorRoutes } from '../../router/routeNames'
 import { Eye, EyeOff } from 'lucide-vue-next'
 
 // Campos
@@ -112,7 +112,7 @@ const handleLogin = async () => {
     // Redirección manual luego de login exitoso
     const redirections: Record<Role, string> = {
       [Role.ADMIN]: AdminRoutes.DASHBOARD,
-      [Role.EMPLEADO]: EmployeeRoutes.REPORTS,
+      [Role.EMPLEADO]: UserRoutes.MANAGE_CLIENTS,
       [Role.OPERARIO]: ErrorRoutes.FORBIDDEN,
     }
 
