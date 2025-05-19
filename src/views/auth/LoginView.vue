@@ -54,7 +54,7 @@
       <!-- Recuperar contraseña -->
       <div class="text-center">
         <RouterLink :to="AuthRoutes.FORGOT_PASSWORD" class="text-sm font-semibold text-[#fdd21f] hover:underline">
-          ¿Has olvidado tu contraseña?
+          Alonso
         </RouterLink>
       </div>
     </div>
