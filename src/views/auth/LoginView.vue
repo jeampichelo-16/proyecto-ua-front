@@ -37,7 +37,7 @@
           <label class="block text-sm font-medium text-gray-700 mb-2">Rol</label>
           <select v-model="role" required
             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#fdd21f]">
-            <option disabled value="">Selecciona un rol</option>
+            <option disabled value="">Selecciona un rol-prueba</option>
             <option v-for="r in roles" :key="r" :value="r">{{ roleLabels[r] }}</option>
           </select>
         </div>
