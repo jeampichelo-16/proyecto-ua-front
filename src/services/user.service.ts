@@ -100,6 +100,20 @@ export async function getPaginatedQuotations(page: number): Promise<{
   }
 }
 
+export async function searchQuotationByCode(codeQuotation: string) {
+  try {
+    const res = await api.get(
+      `/users/search/quotations?codeQuotation=${encodeURIComponent(
+        codeQuotation
+      )}`
+    );
+    return { data: res.data.data };
+  } catch (error) {
+    const message = ErrorService.handle(error);
+    throw new Error(message);
+  }
+}
+
 export async function getQuotationById(id: number): Promise<QuotationDetail> {
   try {
     const res = await api.get(`/users/quotations/${id}`);
@@ -190,15 +204,6 @@ export async function getAvailableOperators(): Promise<
     }));
   } catch (err) {
     const message = ErrorService.handle(err);
-    throw new Error(message);
-  }
-}
-
-export async function deleteClientById(id: number): Promise<void> {
-  try {
-    await api.delete(`/users/clients/${id}`);
-  } catch (error) {
-    const message = ErrorService.handle(error);
     throw new Error(message);
   }
 }

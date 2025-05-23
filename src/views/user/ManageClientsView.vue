@@ -44,9 +44,9 @@
                   <button @click="viewClient(client)" class="flex items-center gap-1 text-blue-600 hover:underline text-xs">
                     <Eye class="w-4 h-4" /> Ver
                   </button>
-                  <button @click="requestDeleteClient(client)" class="flex items-center gap-1 text-red-600 hover:underline text-xs">
+                  <!-- <button @click="requestDeleteClient(client)" class="flex items-center gap-1 text-red-600 hover:underline text-xs">
                     <Trash2 class="w-4 h-4" /> Eliminar
-                  </button>
+                  </button> -->
                 </div>
               </template>
   
@@ -75,13 +75,13 @@
         @submitting="isSubmitting = $event"
       />
   
-      <ClientDeleteModal
+      <!--<ClientDeleteModal
         :isOpen="isDeleteModalOpen"
         :isDeleting="isDeleting"
         :client="clientToDelete"
         @close="isDeleteModalOpen = false"
         @confirm="confirmDeleteClient"
-      />
+      />-->
   
       <ClientCreateModal
         :isOpen="isCreateModalOpen"
@@ -97,17 +97,14 @@
   import {
     getPaginatedClients,
     getClientById,
-    deleteClientById
   } from '../../services/user.service'
-  import { notifyError, notifySuccess } from '../../utils/notify'
   
   import BaseDataTable from '../../components/BaseDataTable.vue'
   import BasePagination from '../../components/BasePagination.vue'
   import ClientDetailModal from '../../components/modals/client/ClientDetailModal.vue'
-  import ClientDeleteModal from '../../components/modals/client/ClientDeleteModal.vue'
   import ClientCreateModal from '../../components/modals/client/ClientCreateModal.vue'
   
-  import { Eye, Trash2, PlusCircle } from 'lucide-vue-next'
+  import { Eye,  PlusCircle } from 'lucide-vue-next'
   
   // 📄 Columnas
   const columns = [
@@ -145,11 +142,6 @@
   // ➕ Modal de creación
   const isCreateModalOpen = ref(false)
   
-  // 🗑 Modal de eliminación
-  const isDeleteModalOpen = ref(false)
-  const clientToDelete = ref<Client | null>(null)
-  const isDeleting = ref(false)
-  
   // 📦 Cargar clientes
   async function fetchClients() {
     try {
@@ -172,6 +164,7 @@
     }
   }
   
+  /*
   // 🗑 Confirmar eliminación
   async function confirmDeleteClient() {
     if (!clientToDelete.value) return
@@ -194,7 +187,8 @@
     clientToDelete.value = client
     isDeleteModalOpen.value = true
   }
-  
+  */
+
   // ✅ Cliente creado
   function handleClientCreated() {
     isCreateModalOpen.value = false

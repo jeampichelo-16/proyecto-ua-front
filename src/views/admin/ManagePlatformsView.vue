@@ -29,10 +29,10 @@
             <!-- Filas -->
             <template #row="{ items }">
                 <tr v-for="machine in items" :key="machine.serial" class="hover:bg-yellow-50 transition duration-150">
+                    <td class="px-6 py-3">{{ machine.serial }}</td>
                     <td class="px-6 py-3">{{ machine.brand }}</td>
                     <td class="px-6 py-3">{{ machine.model }}</td>
                     <td class="px-6 py-3">{{ machine.typePlatform }}</td>
-                    <td class="px-6 py-3">S/ {{ machine.price }}</td>
                     <td class="px-6 py-3">
                         <span class="inline-block px-2 py-1 rounded-full text-xs font-semibold"
                             :class="getMachineStatusBadgeClass(machine.status)">
@@ -89,10 +89,10 @@ const isCreateModalOpen = ref(false)
 
 // Columns
 const columns = [
+    { label: 'Código', key: 'serial' },
     { label: 'Marca', key: 'brand' },
     { label: 'Modelo', key: 'model' },
     { label: 'Tipo', key: 'typePlatform' },
-    { label: 'Precio', key: 'price' },
     { label: 'Estado', key: 'status' },
     { label: 'Acciones', key: 'actions' },
 ]

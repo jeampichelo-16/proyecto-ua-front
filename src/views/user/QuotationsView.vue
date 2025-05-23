@@ -3,18 +3,44 @@
     <BaseDataTable :columns="columns" :items="filteredQuotations">
       <!-- Header -->
       <template #header>
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-          <h1 class="text-2xl font-bold text-gray-800">Gestión de Cotizaciones</h1>
-          <button @click="isCreateModalOpen = true"
-            class="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition">
-            <PlusCircle class="w-4 h-4" />
-            Generar Cotización
-          </button>
+        <div class="space-y-4">
+          <!-- Título -->
+          <div>
+            <h1 class="text-2xl font-bold text-gray-800">Gestión de Cotizaciones</h1>
+            <p class="text-sm text-gray-600">Administra las cotizaciones generadas por los clientes.</p>
+          </div>
+
+          <!-- Buscador + Botón Generar -->
+          <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <!-- Buscador y acciones -->
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full md:w-auto">
+              <input v-model="searchInput" type="text" placeholder="Buscar por código de cotización..."
+                class="border border-gray-300 focus:ring-2 focus:ring-blue-400 rounded px-3 py-2 text-sm w-full sm:w-72 transition"
+                @keyup.enter="handleSearchQuotation" />
+
+              <button @click="handleSearchQuotation"
+                class="bg-blue-600 text-white px-4 py-2 text-sm rounded hover:bg-blue-700 transition">
+                Buscar
+              </button>
+
+              <button v-if="isSearching" @click="cancelSearch"
+                class="bg-gray-200 text-gray-800 px-4 py-2 text-sm rounded hover:bg-gray-300 transition">
+                Cancelar
+              </button>
+            </div>
+
+            <!-- Botón Generar Cotización -->
+            <div class="flex justify-end">
+              <button @click="isCreateModalOpen = true"
+                class="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition">
+                <PlusCircle class="w-4 h-4" />
+                Generar Cotización
+              </button>
+            </div>
+          </div>
         </div>
-        <p class="text-sm text-gray-600 leading-relaxed">
-          Administra las cotizaciones generadas por los clientes.
-        </p>
       </template>
+
 
       <!-- Filas -->
       <template #row="{ items }">
@@ -53,7 +79,7 @@
 
       <!-- Paginación -->
       <template #pagination>
-        <BasePagination :currentPage="currentPage" :totalPages="totalPages"
+        <BasePagination v-if="!isSearching" :currentPage="currentPage" :totalPages="totalPages"
           :hasNextPage="quotations.length === pageSize" @update:page="currentPage = $event" />
       </template>
     </BaseDataTable>
@@ -86,7 +112,8 @@ import {
   getAvailableOperators,
   getActiveClients,
   getActivePlatforms,
-  cancelQuotation
+  cancelQuotation,
+  searchQuotationByCode
 } from '../../services/user.service'
 import { notifyError, notifySuccess } from '../../utils/notify'
 import { formatDate } from '../../utils/date'
@@ -108,8 +135,10 @@ const selectedQuotation = ref<QuotationDetail | null>(null)
 const currentPage = ref(1)
 const total = ref(0)
 const pageSize = ref(10)
-const searchQuery = ref('')
 const selectedStatus = ref('')
+
+const searchInput = ref('')
+const isSearching = ref(false)
 
 const isCreateModalOpen = ref(false)
 const isModalOpen = ref(false)
@@ -141,14 +170,7 @@ const columns = [
 
 const totalPages = computed(() => Math.ceil(total.value / pageSize.value))
 
-const filteredQuotations = computed(() => {
-  const q = searchQuery.value.toLowerCase()
-  return quotations.value.filter(
-    item =>
-      item.status.toLowerCase().includes(q) ||
-      item.codeQuotation.toLowerCase().includes(q)
-  )
-})
+const filteredQuotations = computed(() => quotations.value)
 
 async function safeCall<T>(fn: () => Promise<T>, onError: string): Promise<T | null> {
   try {
@@ -167,10 +189,29 @@ async function fetchActiveData() {
 async function fetchQuotations() {
   const res = await safeCall(() => getPaginatedQuotations(currentPage.value), 'Error al obtener cotizaciones')
   if (!res) return
-
   quotations.value = res.quotations
   total.value = res.total
   pageSize.value = res.pageSize
+}
+
+async function handleSearchQuotation() {
+  const code = searchInput.value.trim()
+  if (!code) return
+  const res = await safeCall(() => searchQuotationByCode(code), 'Error al buscar cotización')
+  if (res && res.data) {
+    quotations.value = [res.data]
+    total.value = 1
+    currentPage.value = 1
+    isSearching.value = true
+  } else {
+    notifyError({ title: 'No encontrado', description: 'No se encontró ninguna cotización con ese código.' })
+  }
+}
+
+async function cancelSearch() {
+  searchInput.value = ''
+  isSearching.value = false
+  await fetchQuotations()
 }
 
 async function viewQuotation(id: number) {
@@ -188,11 +229,9 @@ async function loadOperators() {
 async function openApproveModal(id: number) {
   const data = await safeCall(() => getQuotationById(id), 'Error al preparar aprobación')
   if (!data) return
-
   selectedQuotation.value = data
   approveQuotationId.value = id
   isApproveModalOpen.value = true
-
   if (data.isNeedOperator) await loadOperators()
 }
 
@@ -254,7 +293,9 @@ function getStatusBadge(status: string): string {
   return `<span class="inline-block px-2 py-0.5 text-xs font-semibold rounded-full ${cls}">${label}</span>`
 }
 
-watch([currentPage, selectedStatus], fetchQuotations)
+watch([currentPage, selectedStatus], () => {
+  if (!isSearching.value) fetchQuotations()
+})
 
 watch([isApproveModalOpen, isModalOpen], ([isApproveOpen, isDetailOpen]) => {
   if (!isApproveOpen && !isDetailOpen) {
