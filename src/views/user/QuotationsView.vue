@@ -19,10 +19,9 @@
       <!-- Filas -->
       <template #row="{ items }">
         <tr v-for="q in items" :key="q.id" class="hover:bg-yellow-50 transition duration-150">
-          <td class="px-6 py-3">{{ q.clientName }}</td>
-          <td class="px-6 py-3">{{ q.platformSerial }}</td>
-          <td class="px-6 py-3">{{ q.days }} días</td>
-          <td class="px-6 py-3">S/ {{ q.total.toFixed(2) }}</td>
+          <td class="px-6 py-3">{{ q.codeQuotation }}</td>
+          <td class="px-6 py-3">{{ formatDate(q.startDate) }}</td>
+          <td class="px-6 py-3">{{ formatDate(q.endDate) }}</td>
           <td class="px-6 py-3">
             <span v-html="getStatusBadge(q.status)"></span>
           </td>
@@ -132,12 +131,11 @@ const activeClients = ref<{ id: number; companyName: string }[]>([])
 const activePlatforms = ref<{ id: number; serial: string; brand: string; model: string }[]>([])
 
 const columns = [
-  { label: 'Cliente', key: 'clientName' },
-  { label: 'Plataforma', key: 'platformSerial' },
-  { label: 'Días', key: 'days' },
-  { label: 'Total', key: 'total' },
+  { label: 'Código', key: 'codeQuotation' },
+  { label: 'Inicio de Servicio', key: 'startDate' },
+  { label: 'Fin de Servicio', key: 'endDate' },
   { label: 'Estado', key: 'status' },
-  { label: 'Fecha de creación', key: 'createdAt' },
+  { label: 'Creación', key: 'createdAt' },
   { label: 'Acciones', key: 'actions' }
 ]
 
@@ -147,9 +145,8 @@ const filteredQuotations = computed(() => {
   const q = searchQuery.value.toLowerCase()
   return quotations.value.filter(
     item =>
-      item.clientName.toLowerCase().includes(q) ||
-      item.platformSerial.toLowerCase().includes(q) ||
-      item.status.toLowerCase().includes(q)
+      item.status.toLowerCase().includes(q) ||
+      item.codeQuotation.toLowerCase().includes(q)
   )
 })
 
@@ -170,6 +167,7 @@ async function fetchActiveData() {
 async function fetchQuotations() {
   const res = await safeCall(() => getPaginatedQuotations(currentPage.value), 'Error al obtener cotizaciones')
   if (!res) return
+
   quotations.value = res.quotations
   total.value = res.total
   pageSize.value = res.pageSize
@@ -249,7 +247,6 @@ function confirmCancellation(id: number) {
   cancelQuotationId.value = id
   isCancelConfirmOpen.value = true
 }
-
 
 function getStatusBadge(status: string): string {
   const label = getQuotationStatusLabel(status as any)

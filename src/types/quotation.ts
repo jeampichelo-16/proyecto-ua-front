@@ -1,11 +1,10 @@
 export interface Quotation {
   id: number;
-  clientName: string;
-  platformSerial: string;
-  days: number;
-  total: number;
-  status: string;
+  status: QuotationStatus;
   createdAt: string;
+  startDate: string;
+  endDate: string;
+  codeQuotation: string;
 }
 
 export interface ApproveQuotationPayload {
@@ -52,11 +51,11 @@ export interface QuotationDetail {
   deliveryAmount: number;
   subtotal: number;
   igv: number;
+
   total: number;
   typeCurrency: string;
   isNeedOperator: boolean;
   status: QuotationStatus;
-  days: number;
   quotationPath: string;
   paymentReceiptPath: string;
   createdAt: string;

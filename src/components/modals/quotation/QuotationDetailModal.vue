@@ -16,7 +16,7 @@
         <div class="flex items-start gap-2">
           <Mail class="w-4 h-4 mt-1 text-gray-500" />
           <p class="break-all whitespace-normal leading-snug">
-            <span class="font-medium">Correo:</span> {{ quotation?.client.email }}
+            <span class="font-medium">Correo del cliente:</span> {{ quotation?.client.email }}
           </p>
         </div>
       </section>
@@ -182,7 +182,7 @@ const calculateDays = (start: string | Date, end: string | Date): number => {
   const d1 = new Date(start)
   const d2 = new Date(end)
   const diffTime = Math.abs(d2.getTime() - d1.getTime())
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1
 }
 
 const quotationStatusBadge = computed(() => {

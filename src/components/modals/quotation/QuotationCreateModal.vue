@@ -37,14 +37,14 @@
                 <!-- Fecha de inicio -->
                 <div>
                     <label class="block mb-1 text-gray-700">Fecha de inicio</label>
-                    <input type="date" v-model="form.startDate" :min="today" :disabled="isLoading"
+                    <input type="date" v-model="form.startDate" :min="minStartDate" :disabled="isLoading"
                         class="w-full border rounded px-3 py-2" />
                 </div>
 
                 <!-- Fecha de fin -->
                 <div>
                     <label class="block mb-1 text-gray-700">Fecha de fin</label>
-                    <input type="date" v-model="form.endDate" :min="form.startDate || today" :disabled="isLoading"
+                    <input type="date" v-model="form.endDate" :min="minEndDate" :disabled="isLoading"
                         class="w-full border rounded px-3 py-2" />
                 </div>
 
@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { PlusCircle } from 'lucide-vue-next'
 import BaseModal from '../../BaseModal.vue'
 import { createQuotation } from '../../../services/user.service'
@@ -86,8 +86,14 @@ defineProps<{
 const emit = defineEmits(['update:isOpen', 'created', 'cancel'])
 
 const isLoading = ref(false)
-const today = new Date().toISOString().split('T')[0]
 
+// Fecha mínima para inicio: mañana
+const getTomorrow = () => {
+    const date = new Date()
+    date.setDate(date.getDate() + 1)
+    return date.toISOString().split('T')[0]
+}
+const minStartDate = computed(() => getTomorrow())
 
 const form = ref({
     clientId: null as number | null,
@@ -98,6 +104,21 @@ const form = ref({
     isNeedOperator: false
 })
 
+// Fecha mínima para fin: 2 días después de inicio
+const minEndDate = computed(() => {
+    if (!form.value.startDate) return minStartDate.value
+    const date = new Date(form.value.startDate)
+    date.setDate(date.getDate() + 2)
+    return date.toISOString().split('T')[0]
+})
+
+// Si cambia la fecha de inicio, limpiar la de fin si ya no cumple
+watch(() => form.value.startDate, () => {
+    if (form.value.endDate && new Date(form.value.endDate) < new Date(minEndDate.value)) {
+        form.value.endDate = ''
+    }
+})
+
 async function handleSubmit() {
     const { clientId, platformId, description, startDate, endDate } = form.value
 
@@ -106,8 +127,11 @@ async function handleSubmit() {
         return
     }
 
-    if (new Date(endDate) < new Date(startDate)) {
-        notifyError({ title: 'Rango inválido', description: 'La fecha de fin debe ser posterior a la de inicio.' })
+    if (new Date(endDate) < new Date(minEndDate.value)) {
+        notifyError({
+            title: 'Fecha inválida',
+            description: 'La fecha de fin debe ser al menos 2 días después de la de inicio.'
+        })
         return
     }
 
