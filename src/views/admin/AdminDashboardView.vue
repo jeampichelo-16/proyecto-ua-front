@@ -1,7 +1,8 @@
 <template>
   <div class="p-6 space-y-8">
     <header class="mb-4">
-      <h1 class="text-3xl font-bold text-gray-800">Panel Administrativo</h1>
+      <h1 class="text-2xl font-bold text-gray-800">Panel Administrativo</h1>
+
       <p class="text-gray-500 text-sm">Vista exclusiva para administradores del sistema.</p>
     </header>
 
