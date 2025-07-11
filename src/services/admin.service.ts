@@ -179,9 +179,16 @@ export async function updatePlatformBySerial(
   }
 }
 
-export async function getAdminDashboard() {
+export async function getAdminDashboard(
+  from?: string | null,
+  to?: string | null
+) {
   try {
-    const res = await api.get("/admin/dashboard");
+    const params: Record<string, string> = {};
+    if (from) params.from = from;
+    if (to) params.to = to;
+
+    const res = await api.get("/admin/dashboard", { params });
     return res.data.data;
   } catch (error) {
     const message = ErrorService.handle(error);
