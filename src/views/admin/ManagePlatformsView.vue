@@ -103,7 +103,7 @@ const totalPages = computed(() => Math.ceil(total.value / pageSize.value))
 const filteredMachines = computed(() => {
     const q = searchQuery.value.toLowerCase()
     return machines.value.filter((m) =>
-        `${m.brand} ${m.model}`.toLowerCase().includes(q)
+        `${m.brand} ${m.model} ${m.typePlatform} ${m.status} ${m.serial}`.toLowerCase().includes(q)
     )
 })
 
