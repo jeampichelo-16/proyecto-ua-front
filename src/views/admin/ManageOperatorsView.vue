@@ -31,10 +31,8 @@
           <td class="px-6 py-3">{{ op.email }}</td>
           <td class="px-6 py-3">{{ op.dni }}</td>
           <td class="px-6 py-3">
-            <span
-              class="inline-block px-2 py-1 text-xs font-semibold rounded-full"
-              :class="getOperatorStatusBadgeClass(op.operatorStatus)"
-            >
+            <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full"
+              :class="getOperatorStatusBadgeClass(op.operatorStatus)">
               {{ getOperatorStatusLabel(op.operatorStatus) }}
             </span>
           </td>
@@ -107,6 +105,7 @@ const totalPages = computed(() => Math.ceil(total.value / pageSize.value))
 const filteredOperators = computed(() => {
   const q = searchQuery.value.toLowerCase()
   return operators.value.filter(op =>
+    op.dni.toLowerCase().includes(q) ||
     op.firstName.toLowerCase().includes(q) ||
     op.lastName.toLowerCase().includes(q) ||
     op.username.toLowerCase().includes(q) ||

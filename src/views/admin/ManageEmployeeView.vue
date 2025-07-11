@@ -118,7 +118,7 @@ const totalPages = computed(() => Math.ceil(total.value / pageSize.value))
 const filteredEmployees = computed(() => {
   const q = searchQuery.value.toLowerCase()
   return employees.value.filter((emp) =>
-    [emp.firstName, emp.lastName, emp.username, emp.email].some((val) =>
+    [emp.firstName, emp.lastName, emp.username, emp.email, emp.phone, emp.dni].some((val) =>
       val.toLowerCase().includes(q)
     )
   )

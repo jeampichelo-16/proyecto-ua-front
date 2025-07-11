@@ -7,7 +7,9 @@
           <!-- Título -->
           <div>
             <h1 class="text-2xl font-bold text-gray-800">Gestión de Cotizaciones</h1>
-            <p class="text-sm text-gray-600">Administra las cotizaciones generadas por los clientes.</p>
+            <div class="space-y-1 text-sm text-gray-600 leading-relaxed">
+              <p>Administra las cotizaciones generadas por los clientes.</p>
+            </div>
           </div>
 
           <!-- Buscador + Botón Generar -->
