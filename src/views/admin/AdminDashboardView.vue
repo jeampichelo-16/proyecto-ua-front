@@ -31,6 +31,7 @@
         <CardDashboard title="Monto Total Pagado (S/)" :value="totalPaid" />
         <CardDashboard title="Tasa Promedio Cotizaciones (%)" :value="averageRate" />
         <CardDashboard title="Tiempo Promedio Respuesta (min)" :value="averageResponseTime" />
+
       </div>
     </section>
 
