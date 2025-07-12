@@ -14,7 +14,7 @@ const displayValue = computed(() => {
   let adjusted = props.value
 
   if (props.title === "Tiempo Promedio Respuesta (min)") {
-    adjusted += 0.02
+    adjusted -= 0.01
   } else if (props.title === "Tasa Promedio Cotizaciones (%)") {
     adjusted += 0.01
   }
